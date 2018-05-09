@@ -4,6 +4,7 @@ python:
 dist: trusty
 install:
 - pip install -r requirements.txt
+<<<<<<< HEAD
 script:
 - mkdir -p ~/.config/hca
 - export HCA_CONFIG_FILE=~/.config/hca/config.${TRAVIS_BRANCH}.json
