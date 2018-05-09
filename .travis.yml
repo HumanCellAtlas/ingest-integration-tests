@@ -1,20 +1,23 @@
 language: python
 python:
-  - 3.6
+- 3.6
 dist: trusty
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 addons:
   apt:
     packages:
-      - jq
+    - jq
 script:
-  - export SWAGGER_URL="https://dss.${TRAVIS_BRANCH}.data.humancellatlas.org/v1/swagger.json"
-  - mkdir -p ~/.config/hca
-  - jq -n .DSSClient.swagger_url=env.SWAGGER_URL > ~/.config/hca/config.${TRAVIS_BRANCH}.json
-  - export HCA_CONFIG_FILE=~/.config/hca/config.${TRAVIS_BRANCH}.json
-  - make test
+- export SWAGGER_URL="https://dss.${TRAVIS_BRANCH}.data.humancellatlas.org/v1/swagger.json"
+- mkdir -p ~/.config/hca
+- jq -n .DSSClient.swagger_url=env.SWAGGER_URL > ~/.config/hca/config.${TRAVIS_BRANCH}.json
+- export HCA_CONFIG_FILE=~/.config/hca/config.${TRAVIS_BRANCH}.json
+- make test
 branches:
   only:
-    - dev
-    - integration
+  - dev
+  - integration
+notifications:
+  slack:
+    secure: J5g5kPWjhcDJLZRFt7c//l7oy75kTZWVShpPUmZZ+LA/Cu5z1Uzs6TN6d/T/rgBhViQsYzAFvG1ihpjwfAo/xLE3eF/o/ZcLbN4y/c0qWZS2g2HZlTzk5NGM6WQgU7KUcRQAO05jToAkQAngafzgxcXi/9kgZBh8jjo0AmD4XUkOrngGCnLfp1P8655Fmp8h6PSz319hgMBbEm/BUt8z71BiY7+tSZ/XgsRULJrZX4KN3BCAfjdZUhlO6s4cw+njqYpvYNDegyEsR2wzDF2GtSErVK+URTGXbmMvA0dTSMDzsjqsN2lKu8MCfllBSY8gd72UYPs3pUJgrnF8yJ7y7Fuivm2jPQWDe7C1izwMlEF+yffFpg572NCnth2E5XA4NcaPvtRpV0V6gBZpl49xrQFesnjTkXgk5EUcTgapHaeXK393rs7uUj77LzCNIjQYo6tJJKgSgEUYnFG7TufJ17P5e6Mws/qDbh4ZcLxrbdkS9fIyapPyUtS6rVWVrPmEwH0PzG4mb/lWl8Am9Qlfq6N9mPdYkecAxO5lgDj3sFQ8dBpaLrOd/vy7WtUgNzqajDEAM9M/S5XX3E+wd0xecp8Qhv9IcQAqKKOK4T6us2lZdpv0FtYXTnm2NGC7YpA4aOikGvkcyGXQ9phc9FDY/fMoQlab9ZyF1M7wLX/rRwc=
