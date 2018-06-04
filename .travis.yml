@@ -4,10 +4,6 @@ python:
 dist: trusty
 install:
 - pip install -r requirements.txt
-addons:
-  apt:
-    packages:
-    - jq
 script:
 - mkdir -p ~/.config/hca
 - export HCA_CONFIG_FILE=~/.config/hca/config.${TRAVIS_BRANCH}.json
