@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import unittest
+from urllib.parse import urlparse
 
 import requests
 
@@ -56,7 +57,7 @@ class BundleRunner:
             self._run_command(['hca', 'upload', 'file', file_path])
 
     def forget_about_upload_area(self):
-        upload_area_uuid = self.upload_credentials.split(':')[4]
+        upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
         self._run_command(['hca', 'upload', 'forget', upload_area_uuid])
 
     def wait_for_envelope_to_be_validated(self):
