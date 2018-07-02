@@ -4,10 +4,8 @@ import os
 import re
 import subprocess
 import unittest
+
 from urllib.parse import urlparse
-
-import requests
-
 from .utils import Progress
 from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
