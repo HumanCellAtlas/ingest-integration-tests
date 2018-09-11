@@ -52,7 +52,7 @@ class BundleRunner:
         Progress.report("STAGING FILES...\n")
         self._run_command(['hca', 'upload', 'select', self.upload_credentials])
         for file_path in bundle.data_files_paths():
-            self._run_command(['hca', 'upload', 'file', file_path])
+            self._run_command(['hca', 'upload', 'files', file_path])
 
     def forget_about_upload_area(self):
         upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
