@@ -92,7 +92,7 @@ class IngestAuthAgent:
             store the token and make authenticated headers. Note:
         """
         self.s2s_token_client = S2STokenClient()
-        self.s2s_token_client.setup_from_file('GCP_AUTH_INFO')
+        self.s2s_token_client.setup_from_file('gcp_auth_info.json')
         self.token_manager = TokenManager(token_client=self.s2s_token_client)
 
     def _get_auth_token(self):
