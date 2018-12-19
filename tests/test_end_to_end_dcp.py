@@ -5,7 +5,6 @@ import re
 import subprocess
 import unittest
 from urllib.parse import urlparse
-
 import requests
 
 from .utils import Progress
@@ -31,7 +30,6 @@ class BundleRunner:
         self.stage_data_files(bundle_fixture)
         self.forget_about_upload_area()
         self.wait_for_envelope_to_be_validated()
-        return self.secondary_bundle_uuid
 
     def upload_spreadsheet_and_create_submission(self, bundle_fixture):
         spreadhseet_filename = os.path.basename(bundle_fixture.metadata_spreadsheet_path)
@@ -54,7 +52,7 @@ class BundleRunner:
         Progress.report("STAGING FILES...\n")
         self._run_command(['hca', 'upload', 'select', self.upload_credentials])
         for file_path in bundle.data_files_paths():
-            self._run_command(['hca', 'upload', 'file', file_path])
+            self._run_command(['hca', 'upload', 'files', file_path])
 
     def forget_about_upload_area(self):
         upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
@@ -68,7 +66,7 @@ class BundleRunner:
     def _envelope_is_valid(self):
         envelope_status = self.submission_envelope.reload().status()
         Progress.report(f"envelope status is {envelope_status}")
-        return envelope_status in ['Valid', 'Submitted']
+        return envelope_status in ['Valid']
 
     @staticmethod
     def _run_command(cmd_and_args_list, expected_retcode=0):
