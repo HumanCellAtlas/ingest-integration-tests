@@ -1,13 +1,12 @@
 import json
 import time
 import os
-
 import requests
-
-from . import logger
 
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
+
+from . import logger
 
 
 class IngestUIAgent:
