@@ -1,23 +1,24 @@
 import json
 import time
+import os
 
 import requests
 
 from . import logger
 
-from ingest.utils.token_manager import TokenManager
 from ingest.utils.s2s_token_client import S2STokenClient
+from ingest.utils.token_manager import TokenManager
+
 
 class IngestUIAgent:
 
-    INGEST_UI_URL_TEMPLATE = "http://ingest.{}.data.humancellatlas.org"
+    INGEST_UI_URL_TEMPLATE = "https://ingest.{}.data.humancellatlas.org"
 
     def __init__(self, deployment):
         self.deployment = deployment
         self.ingest_broker_url = self.INGEST_UI_URL_TEMPLATE.format(self.deployment)
         self.ingest_auth_agent = IngestAuthAgent()
         self.auth_headers = self.ingest_auth_agent.make_auth_header()
-
 
     def upload(self, metadata_spreadsheet_path):
         url = self.ingest_broker_url + '/api_upload'
@@ -89,10 +90,12 @@ class IngestApiAgent:
 class IngestAuthAgent:
     def __init__(self):
         """This class controls the authentication actions with Ingest Service, including retrieving the token,
-            store the token and make authenticated headers. Note:
+         store the token and make authenticated headers. Note:
         """
         self.s2s_token_client = S2STokenClient()
-        self.s2s_token_client.setup_from_file('gcp_auth_info.json')
+        gcp_credentials_file = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+
+        self.s2s_token_client.setup_from_file(gcp_credentials_file)
         self.token_manager = TokenManager(token_client=self.s2s_token_client)
 
     def _get_auth_token(self):
@@ -112,3 +115,4 @@ class IngestAuthAgent:
             "Authorization": f"Bearer {self._get_auth_token()}"
         }
         return headers
+
