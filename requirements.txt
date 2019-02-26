@@ -1,4 +1,5 @@
 iso8601
 requests
 urllib3
-hca>=v4.0.0
+hca
+hca-ingest
