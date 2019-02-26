@@ -1,14 +1,12 @@
 import json
 import os
-
-import iso8601
-import requests
-from urllib3.util import parse_url
 import time
-from . import logger
 
+import requests
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
+
+from . import logger
 
 
 class IngestUIAgent:
