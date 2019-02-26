@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import subprocess
 import unittest
-from urllib.parse import urlparse
-import requests
 
+from urllib.parse import urlparse
 from .utils import Progress
 from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
-from .bundle_fixture import BundleFixture
+from .dataset_fixture import DatasetFixture
 
 DEPLOYMENTS = ('dev', 'integration')
 
 
-class BundleRunner:
+class DatasetRunner:
 
     def __init__(self, deployment):
         self.ingest_broker = IngestUIAgent(deployment=deployment)
@@ -23,17 +21,19 @@ class BundleRunner:
         self.submission_id = None
         self.submission_envelope = None
         self.upload_credentials = None
+        self.dataset = None
 
-    def run(self, bundle_fixture):
-        self.upload_spreadsheet_and_create_submission(bundle_fixture)
+    def run(self, dataset_fixture):
+        self.dataset = dataset_fixture
+        self.upload_spreadsheet_and_create_submission(dataset_fixture)
         self.get_upload_area_credentials()
-        self.stage_data_files(bundle_fixture)
+        self.stage_data_files(dataset_fixture)
         self.forget_about_upload_area()
         self.wait_for_envelope_to_be_validated()
 
     def upload_spreadsheet_and_create_submission(self, bundle_fixture):
-        spreadhseet_filename = os.path.basename(bundle_fixture.metadata_spreadsheet_path)
-        Progress.report(f"CREATING SUBMISSION with {spreadhseet_filename}...")
+        spreadsheet_filename = os.path.basename(bundle_fixture.metadata_spreadsheet_path)
+        Progress.report(f"CREATING SUBMISSION with {spreadsheet_filename}...")
         self.submission_id = self.ingest_broker.upload(bundle_fixture.metadata_spreadsheet_path)
         Progress.report(f" submission ID is {self.submission_id}\n")
         self.submission_envelope = self.ingest_api.envelope(self.submission_id)
@@ -51,8 +51,7 @@ class BundleRunner:
     def stage_data_files(self, bundle):
         Progress.report("STAGING FILES...\n")
         self._run_command(['hca', 'upload', 'select', self.upload_credentials])
-        for file_path in bundle.data_files_paths():
-            self._run_command(['hca', 'upload', 'files', file_path])
+        self._run_command(['hca', 'upload', 'files', self.dataset.config['data_files_location']])
 
     def forget_about_upload_area(self):
         upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
@@ -60,7 +59,7 @@ class BundleRunner:
 
     def wait_for_envelope_to_be_validated(self):
         Progress.report("WAIT FOR VALIDATION...")
-        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=30 * 60)
+        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=15 * 60)
         Progress.report(" envelope is valid.\n")
 
     def _envelope_is_valid(self):
@@ -86,19 +85,17 @@ class TestEndToEndDCP(unittest.TestCase):
         if self.deployment not in DEPLOYMENTS:
             raise RuntimeError(f"TRAVIS_BRANCH environment variable must be one of {DEPLOYMENTS}")
 
-    def ingest_store_and_analyze_bundle(self, bundle_fixture_path):
-        bundle_fixture = BundleFixture(bundle_fixture_path)
-        runner = BundleRunner(deployment=self.deployment)
-        runner.run(bundle_fixture)
+    def ingest_store_and_analyze_bundle(self, dataset_name):
+        dataset_fixture = DatasetFixture(dataset_name)
+        runner = DatasetRunner(deployment=self.deployment)
+        runner.run(dataset_fixture)
         return runner
 
 
 class TestSmartSeq2Run(TestEndToEndDCP):
 
-    SMARTSEQ2_BUNDLE_FIXTURE_PATH = 'tests/fixtures/bundles/Smart-seq2'
-
     def test_smartseq2_run(self):
-        runner = self.ingest_store_and_analyze_bundle(self.SMARTSEQ2_BUNDLE_FIXTURE_PATH)
+        runner = self.ingest_store_and_analyze_bundle('SS2')
 
 
 if __name__ == '__main__':
