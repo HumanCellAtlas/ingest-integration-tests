@@ -15,8 +15,8 @@ branches:
 notifications:
   slack:
     secure: i4MkRM6r9xrBei53cpdNwGl8CIxOT2M5eR+MZLETkkwytepEyw/aDWuPVaTnCrU8a4+M6fP4uus2HfEr6OyDQTuPfT++NTfmKpxKEaGgJx5ot3RDZ6av/iuAv3weNP67lR0R1axud7EQvvU7cIRULfQ6gr/PP4K+6kfyXwA05L2dDTtrn+HMoV5AhRQOwFl7fwNc35RI7fZ23Tpj3VyceH26Z0v3htPBmGqvWnNTvvl47YM7JFfd/YFKuSdLpHPpRAiAEr6DbFTXWK4+yWUkPUmi1XtqD4ix3fJp3UNZwgjFdZeuI1gOhBP62s6EVRJeYyw1WVsr0y0ueb+IbRodQ2FXs4j40C4kXu1K5tRH1F+IfEV6wiN/G8CMqvD6chPgfl8OWcG1Hox13AtQutOCcfXR+tybjtk5JA7Qqskh1ugwOciFJ2JYr7VLhHQfX1dL5MVUZX1tzHgs3khZqCx3QcI8qYeJGKEOWg2jWCrg8pO3HfnvVqJS00zXVW8lsK6K1ykplmSOFsg+TZu6gElWVVvtMHZ7PLOfLowuttUf6W+dlu185RdAtbLUfml9g1SatpJSDumRn84DE5rFnYaF8dEUB1U+X0c26RAjbJYIXCW8xNGUfDrpsPxmnkVXkt0IABaZ7+NA/dALRrmOhRTxSGgoKkRrvrUcnPQaW9TF4W8=
+env:
+- GOOGLE_APPLICATION_CREDENTIALS=gcp.json
 before_install:
 - openssl aes-256-cbc -K $encrypted_22cab7b434b1_key -iv $encrypted_22cab7b434b1_iv
   -in gcp.json.enc -out gcp.json -d
-env:
-- GOOGLE_APPLICATION_CREDENTIALS=gcp.json
