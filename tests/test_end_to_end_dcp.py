@@ -23,6 +23,7 @@ class DatasetRunner:
         self.submission_envelope = None
         self.upload_credentials = None
         self.dataset = None
+        self.upload_area_uuid = None
 
     def run(self, dataset_fixture):
         self.dataset = dataset_fixture
@@ -51,12 +52,24 @@ class DatasetRunner:
 
     def stage_data_files(self, bundle):
         Progress.report("STAGING FILES...\n")
-        self._run_command(['hca', 'upload', 'select', self.upload_credentials])
+        self.upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
+        self._stage_data_files_using_s3_sync()
+
+    def _stage_data_files_using_s3_sync(self):
+        Progress.report("STAGING FILES using hca cli...")
+        self.select_upload_area()
+        self.upload_files()
+        self.forget_about_upload_area()
+
+    def select_upload_area(self):
+        upload_area_s3_location = f"s3://org-humancellatlas-upload-{self.deployment}/{self.upload_area_uuid}/"
+        self._run_command(['hca', 'upload', 'select', upload_area_s3_location])
+
+    def upload_files(self):
         self._run_command(['hca', 'upload', 'files', self.dataset.config['data_files_location']])
 
     def forget_about_upload_area(self):
-        upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
-        self._run_command(['hca', 'upload', 'forget', upload_area_uuid])
+        self._run_command(['hca', 'upload', 'forget', self.upload_area_uuid])
 
     def wait_for_envelope_to_be_validated(self):
         Progress.report("WAIT FOR VALIDATION...")
