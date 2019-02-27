@@ -13,6 +13,8 @@ from .dataset_fixture import DatasetFixture
 
 DEPLOYMENTS = ('dev', 'integration')
 
+MINUTE = 60
+
 
 class DatasetRunner:
 
@@ -24,13 +26,13 @@ class DatasetRunner:
         self.upload_credentials = None
         self.dataset = None
         self.upload_area_uuid = None
+        self.deployment = deployment
 
     def run(self, dataset_fixture):
         self.dataset = dataset_fixture
         self.upload_spreadsheet_and_create_submission(dataset_fixture)
         self.get_upload_area_credentials()
         self.stage_data_files(dataset_fixture)
-        self.forget_about_upload_area()
         self.wait_for_envelope_to_be_validated()
 
     def upload_spreadsheet_and_create_submission(self, bundle_fixture):
@@ -44,7 +46,7 @@ class DatasetRunner:
         Progress.report("WAITING FOR STAGING AREA...")
         self.upload_credentials = WaitFor(
             self._get_upload_area_credentials
-        ).to_return_a_value_other_than(other_than_value=None, timeout_seconds=60)
+        ).to_return_a_value_other_than(other_than_value=None, timeout_seconds=2 * MINUTE)
         Progress.report(" credentials received.\n")
 
     def _get_upload_area_credentials(self):
