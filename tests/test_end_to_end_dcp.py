@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import subprocess
 import unittest
-
 from urllib.parse import urlparse
+
 from .utils import Progress
 from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
@@ -60,7 +59,7 @@ class DatasetRunner:
 
     def wait_for_envelope_to_be_validated(self):
         Progress.report("WAIT FOR VALIDATION...")
-        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=15 * 60)
+        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=30 * 60)
         Progress.report(" envelope is valid.\n")
 
     def _envelope_is_valid(self):
