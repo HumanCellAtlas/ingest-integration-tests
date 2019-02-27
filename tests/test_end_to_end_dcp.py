@@ -26,13 +26,13 @@ class DatasetRunner:
         self.upload_credentials = None
         self.dataset = None
         self.upload_area_uuid = None
+        self.deployment = deployment
 
     def run(self, dataset_fixture):
         self.dataset = dataset_fixture
         self.upload_spreadsheet_and_create_submission(dataset_fixture)
         self.get_upload_area_credentials()
         self.stage_data_files(dataset_fixture)
-        self.forget_about_upload_area()
         self.wait_for_envelope_to_be_validated()
 
     def upload_spreadsheet_and_create_submission(self, bundle_fixture):
