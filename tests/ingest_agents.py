@@ -1,12 +1,7 @@
 import json
-<<<<<<< HEAD
-import time
-import os
-=======
 import os
 import time
 
->>>>>>> dev
 import requests
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
@@ -119,7 +114,4 @@ class IngestAuthAgent:
             "Authorization": f"Bearer {self._get_auth_token()}"
         }
         return headers
-<<<<<<< HEAD
-=======
 
->>>>>>> dev
