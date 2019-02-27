@@ -18,5 +18,4 @@ notifications:
 env:
 - GOOGLE_APPLICATION_CREDENTIALS=gcp.json
 before_install:
-- openssl aes-256-cbc -K $encrypted_22cab7b434b1_key -iv $encrypted_22cab7b434b1_iv
-  -in gcp.json.enc -out gcp.json -d
+- openssl aes-256-cbc -K $encrypted_22cab7b434b1_key -iv $encrypted_22cab7b434b1_iv -in gcp.json.enc -out gcp.json -d
