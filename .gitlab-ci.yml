@@ -6,10 +6,12 @@ stages:
 job:
   stage: test
   script:
-     - echo "Hello, $USER!"
+     - PYTHONWARNINGS=ignore:ResourceWarning python -m unittest discover
   only:
     - dev
 
 before_script:
+  - apt-get -y install jq
   - pip install -r requirements.txt
-  - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp.json
+  - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/${CI_COMMIT_REF_NAME}/gcp-credentials.json | jq -r .SecretString > gcp-credentials.json
+  - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp-credentials.json
