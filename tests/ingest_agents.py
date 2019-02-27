@@ -1,12 +1,12 @@
 import json
-import time
 import os
+import time
+
 import requests
+from ingest.utils.s2s_token_client import S2STokenClient
+from ingest.utils.token_manager import TokenManager
 
 from . import logger
-
-from ingest.utils.token_manager import TokenManager
-from ingest.utils.s2s_token_client import S2STokenClient
 
 
 class IngestUIAgent:
@@ -18,7 +18,6 @@ class IngestUIAgent:
         self.ingest_broker_url = self.INGEST_UI_URL_TEMPLATE.format(self.deployment)
         self.ingest_auth_agent = IngestAuthAgent()
         self.auth_headers = self.ingest_auth_agent.make_auth_header()
-
 
     def upload(self, metadata_spreadsheet_path):
         url = self.ingest_broker_url + '/api_upload'
