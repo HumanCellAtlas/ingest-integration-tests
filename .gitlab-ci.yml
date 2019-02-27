@@ -1,0 +1,15 @@
+image: python:3.6
+
+stages:
+  - test
+
+job:
+  stage: test
+  script:
+     - echo "Hello, $USER!"
+  only:
+    - dev
+
+before_script:
+  - pip install -r requirements.txt
+  - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp.json
