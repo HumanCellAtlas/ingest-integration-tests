@@ -11,7 +11,7 @@ from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
 from .dataset_fixture import DatasetFixture
 
-DEPLOYMENTS = ('develop', 'integration')
+DEPLOYMENTS = ('dev', 'integration')
 
 MINUTE = 60
 
@@ -105,7 +105,7 @@ class TestEndToEndDCP(unittest.TestCase):
         if self.deployment == 'dev':
             self.deployment = 'develop'
 
-    def ingest_store_and_analyze_bundle(self, dataset_name, deployment):
+    def ingest_store_and_analyze_bundle(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name)
         runner = DatasetRunner(deployment=self.deployment)
         runner.run(dataset_fixture)
