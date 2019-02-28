@@ -1,0 +1,12 @@
+{
+	"type": "service_account",
+	"project_id": "human-cell-atlas-travis-test",
+	"private_key_id": "b845a12023998af1fc3c16baa5ddfce76cc1a11f",
+	"private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCjrZpSfTAKs20e\nDsoC6brgZDdgSXZpIIW4qYh42HE2JcSCz9dtesHETwmqpMg7VQIc/9cg9V3KMnSh\nemyZ2r3ITNIC9Wk8UvahqcBRlJjOwqZgjHbhB+gcaJ49h0sebNAUacLsen2/nrz4\nU4L93hhUBspqyltYKOJ0iShXBgaS2QTsOLWXAXnWo2WDTk5EvDg2Uowu4BzWCSwh\nc02XbiM3RzcFJ6Weno2NZixtNfC97EESCGa4PhME+z/aeX9U5TjAEl5uuUWbe75H\nr3LBBVfJ7jOvIThh93axZqKiSItBeccNZH4ENpYjC0okWdwJTTabHqAIztdqfCql\ns77WvHpJAgMBAAECggEAKfL53M9Z6zwuKKh4rMNzkkQNDz/0uZ/MtdW5dONgLJUE\nZtRW7aerFqF9JD+EU/SHDKCjZb6NEZ/Z1XL3d30g67+IiZqVJJFMxYUolaAEg+VO\nV+tYIndwzSsg9zsADSWtNLYgb5Q7O0u3OdvJdEAiMxLkePcw7wjXdS+b56XTNHpC\nHz52fEYNGrxaWrFAWmNwLTXEhoCfAZjqmC9XoUhUdIMig5tegLfX7Ma8Y9EAi/+H\nahGbaKHK62wpVMM9oJWOKAwo4qpw2ycBx+b+cy/+T5hjfJe7FcgN/UTFmwR9DdZl\nOOurGWjSqIDR/l2kB9ucCy5OPkQhlbQ46T+SXIT7ewKBgQDfOS5xH5OO35Q+JFbz\nYiCbCXW8P4x2bI07VKsn/KJoJZLBq/XbnL/mlLvUB8joaCM9k/Ab/MxuzlLxprO7\nuhKz5z8+5nmE1XG4ORksjz+OV1zJHamuctKXDveuhD/nlQfaa2RuKDWRpHNhFmgh\nP0Ffsx9vJDchpPKNeb7CszQ49wKBgQC7tifY5cxobzjWWQFaRAp2dcztYHu8BVW+\nOlRU0AbNYkqw8hq0WxJVTJbJyGeEbfTq3mlp9y3TG4yzHagFvUPLxz00FIJs9d5M\nJyjMZBuWcPbzzvwqZtTkEJXxUuGkuliIDvgot3q9rbhAnNwO4gqfJjTVc6wFdJv+\nQF2D97VWvwKBgQCYqc3GVhcfrm7/NPE2kNTF02lu7nNNBp5shlJsDY6w9Ylx5P5H\nTOO9edkfgJd5wsbfNU8QhQr3eSom1KC1ceOaoDuT9CIFo8ibeolp/So1WjA954iF\no0e9QeJIu2/NHRJ64dmUsPE6AyNZse5TVqSKI8IKy9TcsKel9C5vkAnWLwKBgD+S\nMi6HrNFVkYcuP4IFdxGlVZCy01Ta7a3t7S+IADXAaxE//QFFspDGzm5p+3zjDEYa\nqtKjTpanRuBGU+gVsAcsY7Lmm0Exh2Z9AJkv8hPiEBCD8eyeRM00PMOs0RRLs73o\na+zGLsBcPAFN3k0ACp7Zfp0nfoOeeVIDFGikFHrbAoGAYUpQjRPjB9v04tujBuNA\nZviRnIulpM5vjii0p94Q8gWCUjakHfAhZnFtK5fsWfgPvco2/hNFg4InOTbKg2sY\nNNJAiY1qpS/ra43mInQ64FPX85mDDyl0v6aL8MWkMa95cveQF+a5K/Q+QGv2Ni16\n5gG14jyd6K9umuJpZLmLD5E=\n-----END PRIVATE KEY-----\n",
+	"client_email": "ingest-exporter-dev@human-cell-atlas-travis-test.iam.gserviceaccount.com",
+	"client_id": "101509446862775577440",
+	"auth_uri": "https://accounts.google.com/o/oauth2/auth",
+	"token_uri": "https://oauth2.googleapis.com/token",
+	"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+	"client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ingest-exporter-dev%40human-cell-atlas-travis-test.iam.gserviceaccount.com"
+}
