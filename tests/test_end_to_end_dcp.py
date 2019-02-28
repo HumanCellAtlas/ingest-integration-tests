@@ -98,9 +98,9 @@ class DatasetRunner:
 class TestEndToEndDCP(unittest.TestCase):
 
     def setUp(self):
-        self.deployment = os.environ.get('TRAVIS_BRANCH', None)
+        self.deployment = os.environ.get('CI_COMMIT_REF_NAME', None)
         if self.deployment not in DEPLOYMENTS:
-            raise RuntimeError(f"TRAVIS_BRANCH environment variable must be one of {DEPLOYMENTS}")
+            raise RuntimeError(f"CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}")
 
     def ingest_store_and_analyze_bundle(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name)
