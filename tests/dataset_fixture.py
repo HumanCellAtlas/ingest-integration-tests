@@ -29,10 +29,15 @@ class DatasetFixture:
         self._spreadsheet = None
         readme_json_path = os.path.join(self.dataset_path, 'README.json')
 
+        branch = self.deployment
+
+        if self.deployment == 'dev':
+            branch = 'develop'
+
         with open(readme_json_path) as json_data:
             self.config = json.load(json_data)
             self.config["spreadsheet_location"] = self.config[
-                "spreadsheet_location"].replace("DEPLOYMENT", self.deployment)
+                "spreadsheet_location"].replace("DEPLOYMENT", branch)
         self._download_spreadsheet()
 
     def _download_spreadsheet(self):
