@@ -18,7 +18,7 @@ class DatasetFixture:
 
     """
 
-    def __init__(self, dataset_name, deployment="integration"):
+    def __init__(self, dataset_name, deployment):
         self.name = dataset_name
         self.deployment = deployment
 
