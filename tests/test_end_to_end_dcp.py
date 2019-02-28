@@ -103,7 +103,7 @@ class TestEndToEndDCP(unittest.TestCase):
             raise RuntimeError(f"CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}")
 
     def ingest_store_and_analyze_bundle(self, dataset_name):
-        dataset_fixture = DatasetFixture(dataset_name)
+        dataset_fixture = DatasetFixture(dataset_name, self.deployment)
         runner = DatasetRunner(deployment=self.deployment)
         runner.run(dataset_fixture)
         return runner
