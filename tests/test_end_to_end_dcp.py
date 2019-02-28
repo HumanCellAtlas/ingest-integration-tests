@@ -11,7 +11,7 @@ from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
 from .dataset_fixture import DatasetFixture
 
-DEPLOYMENTS = ('dev', 'integration')
+DEPLOYMENTS = ('develop', 'integration')
 
 MINUTE = 60
 
@@ -99,11 +99,11 @@ class TestEndToEndDCP(unittest.TestCase):
     def setUp(self):
         self.deployment = os.environ.get('CI_COMMIT_REF_NAME', None)
 
-        if self.deployment == 'dev':
-            self.deployment = 'develop'
-
         if self.deployment not in DEPLOYMENTS:
             raise RuntimeError(f"CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}")
+
+        if self.deployment == 'dev':
+            self.deployment = 'develop'
 
     def ingest_store_and_analyze_bundle(self, dataset_name, deployment):
         dataset_fixture = DatasetFixture(dataset_name)
