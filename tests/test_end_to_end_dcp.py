@@ -75,8 +75,7 @@ class DatasetRunner:
 
     def wait_for_envelope_to_be_validated(self):
         Progress.report("WAIT FOR VALIDATION...")
-        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=15 * 60)
-        WaitFor(self._envelope_is_valid).to_return_value(value=True, timeout_seconds=30 * 60)
+        WaitFor(self._envelope_is_valid).to_return_value(value=True)
         Progress.report(" envelope is valid.\n")
 
     def _envelope_is_valid(self):
