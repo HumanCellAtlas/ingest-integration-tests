@@ -9,6 +9,7 @@ job:
      - PYTHONWARNINGS=ignore:ResourceWarning python -m unittest discover
   only:
     - dev
+    - integration
 
 before_script:
   - apt-get -y update
