@@ -30,7 +30,7 @@ class IngestUIAgent:
 
 class IngestApiAgent:
 
-    INGEST_API_URL_TEMPLATE = "http://api.ingest.{}.data.humancellatlas.org"
+    INGEST_API_URL_TEMPLATE = "https://api.ingest.{}.data.humancellatlas.org"
 
     def __init__(self, deployment):
         self.deployment = deployment
