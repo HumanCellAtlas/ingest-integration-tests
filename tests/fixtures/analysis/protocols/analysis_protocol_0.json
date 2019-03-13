@@ -1,0 +1,16 @@
+{
+    "computational_method": "10x",
+    "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/analysis/8.0.3/analysis_protocol",
+    "protocol_core": {
+        "protocol_id": "cellranger_v1.0.2"
+    },
+    "protocol_type": {
+        "text": "analysis"
+    },
+    "schema_type": "protocol",
+    "provenance": {
+        "document_id": "3040d301-9bd5-4c58-9e12-18fbad26d080",
+        "submission_date": "2019-03-01T15:15:13.385Z",
+        "update_date": "2019-03-01T15:15:18.195Z"
+    }
+}
