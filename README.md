@@ -1,4 +1,4 @@
-[![pipeline status](https://allspark.dev.data.humancellatlas.org/aaclan-ebi/ingest-integration-tests/badges/integration/pipeline.svg)](https://allspark.dev.data.humancellatlas.org/aaclan-ebi/ingest-integration-tests/commits/integration)
+[![pipeline status](https://allspark.dev.data.humancellatlas.org/aaclan-ebi/ingest-integration-tests/badges/staging/pipeline.svg)](https://allspark.dev.data.humancellatlas.org/aaclan-ebi/ingest-integration-tests/commits/staging)
 
 
 # Ingest Integration Tests
