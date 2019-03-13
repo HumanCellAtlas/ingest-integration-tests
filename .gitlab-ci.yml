@@ -10,6 +10,7 @@ job:
   only:
     - dev
     - integration
+    - staging
 
 before_script:
   - apt-get -y update
