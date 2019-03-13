@@ -11,7 +11,7 @@ from .wait_for import WaitFor
 from .ingest_agents import IngestUIAgent, IngestApiAgent
 from .dataset_fixture import DatasetFixture
 
-DEPLOYMENTS = ('dev', 'integration')
+DEPLOYMENTS = ('dev', 'integration', 'staging')
 
 MINUTE = 60
 
