@@ -1,0 +1,13 @@
+{
+    "describedBy": "http://schema.integration.data.humancellatlas.org/type/file/5.3.4/analysis_file",
+    "schema_type": "file",
+    "file_core": {
+        "file_name": "matrix.mtx",
+        "file_format": "mtx"
+    },
+    "provenance": {
+        "document_id": "546f0c89-2190-490a-adf4-a05ff4d8dcd4",
+        "submission_date": "2019-03-01T15:15:15.786Z",
+        "update_date": "2019-03-01T15:20:48.222Z"
+    }
+}
