@@ -126,6 +126,11 @@ class AnalysisSubmissionRunner:
 
         self.bundle_manifest_uuid = None
         self.analysis_submission = None
+        self.analysis_process = None
+        self.analysis_protocol = None
+        self.bundle_manifest = None
+        self.primary_submission_files = None
+
         self.analysis_fixture = AnalysisSubmissionFixture()
         self.primary_submission_id = None
         self.primary_submission = None
@@ -135,7 +140,7 @@ class AnalysisSubmissionRunner:
 
     def run(self, dataset_fixture, analysis_fixture):
         self.create_primary_submission(dataset_fixture)
-        time.sleep(10)  # TODO had to add time delay to wait for spreadsheet upload which is async
+        time.sleep(20)  # TODO had to add time delay to wait for spreadsheet upload which is async
         self.bundle_manifest_uuid = self.mock_export()
         self.analysis_fixture = analysis_fixture
         self.create_analysis_submission()
@@ -172,6 +177,8 @@ class AnalysisSubmissionRunner:
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
         process = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_process), 'processes')
         protocol = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_protocol), 'protocols')
+        self.analysis_process = process
+        self.analysis_protocol = protocol
 
         process_url = process['_links']['self']['href']
         protocol_url = protocol['_links']['self']['href']
@@ -202,8 +209,9 @@ class AnalysisSubmissionRunner:
         self.submission_manager = SubmissionManager(self.analysis_submission)
         self.submission_manager.get_upload_area_credentials()
         # TODO restrict permission in the s3 bucket
-        # TODO Confirm why this is encountering an error!!!
+        # FIXME The following is a workaround because of the issue when uploading files from an s3 bucket. This is very slow as it's uploading files one at a time, fix this
         # self.submission_manager.stage_data_files('s3://org-humancellatlas-ingest-integration-test/analysis-data')
+
         self.submission_manager.select_upload_area()
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/metrics_summary.csv')
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/filtered_gene_bc_matrices_h5.h5')
@@ -252,7 +260,7 @@ class TestEndToEndDCP(unittest.TestCase):
         self.deployment = os.environ.get('CI_COMMIT_REF_NAME', None)
 
         if self.deployment not in DEPLOYMENTS:
-            raise RuntimeError(f"CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}")
+            raise RuntimeError(f'CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}')
 
     def ingest(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
@@ -260,12 +268,51 @@ class TestEndToEndDCP(unittest.TestCase):
         runner.run(dataset_fixture)
         return runner
 
+    # TODO move this to ingest client api
+    def _get_entities(self, url, entity_type):
+        r = requests.get(url, headers={'Content-type': 'application/json'})
+        r.raise_for_status()
+        response = r.json()
+
+        if response.get('_embedded') and response['_embedded'].get(entity_type):
+            return response['_embedded'][entity_type]
+        else:
+            return []
+
     def ingest_analysis(self, dataset_name):
         analysis_fixture = AnalysisSubmissionFixture()
-        analysis_submission_runner = AnalysisSubmissionRunner(deployment=self.deployment)
+        runner = AnalysisSubmissionRunner(deployment=self.deployment)
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
-        analysis_submission_runner.run(dataset_fixture, analysis_fixture)
-        return analysis_submission_runner
+        runner.run(dataset_fixture, analysis_fixture)
+
+        derived_files_url = runner.analysis_process['_links']['derivedFiles'][
+            'href']
+        derived_files = self._get_entities(derived_files_url, 'files')
+        analysis_files = runner.analysis_submission.get_files()
+
+        self.assertEqual(derived_files, analysis_files,
+                         'The analysis files must be linked to the analysis process.')
+
+        input_files_url = runner.analysis_process['_links']['inputFiles'][
+            'href']
+        input_files = self._get_entities(input_files_url, 'files')
+        primary_submission_files = runner.primary_submission.get_files()
+
+        self.assertEqual(input_files, primary_submission_files,
+                         'The primary submission files must be linked to the analysis process.')
+
+        input_bundle_manifest_url = \
+            runner.analysis_process['_links']['inputBundleManifests']['href']
+        attached_bundle_manifests = self._get_entities(
+            input_bundle_manifest_url, 'bundleManifests')
+
+        self.assertEqual(len(attached_bundle_manifests), 1,
+                         'There should only be one input bundle manifest for the analysis process')
+        self.assertEqual(attached_bundle_manifests[0]['bundleUuid'],
+                         runner.bundle_manifest_uuid,
+                         'The input bundle manifest for the analysis process is incorrect')
+
+        return runner
 
 
 class TestSmartSeq2Run(TestEndToEndDCP):
