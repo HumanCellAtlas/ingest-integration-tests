@@ -43,19 +43,21 @@ class IngestApiAgent:
         response = requests.get(url, headers=self.auth_headers)
         return response.json()['_embedded']['submissionEnvelopes']
 
-    def envelope(self, envelope_id=None):
+    def envelope(self, envelope_id=None, url=None):
         return IngestApiAgent.SubmissionEnvelope(envelope_id=envelope_id, ingest_api_url=self.ingest_api_url,
-                                                 auth_headers=self.auth_headers)
+                                                 auth_headers=self.auth_headers, url=url)
 
     class SubmissionEnvelope:
 
-        def __init__(self, envelope_id=None, ingest_api_url=None, auth_headers=None):
+        def __init__(self, envelope_id=None, ingest_api_url=None, auth_headers=None, url=None):
             self.envelope_id = envelope_id
+            self.url = url
             self.ingest_api_url = ingest_api_url
             self.data = None
             self.auth_headers = auth_headers
-            if envelope_id:
+            if envelope_id or url:
                 self._load()
+
 
         def upload_credentials(self):
             """ Return upload area credentials or None if this envelope doesn't have an upload area yet """
@@ -71,19 +73,39 @@ class IngestApiAgent:
         def status(self):
             return self.data['submissionState']
 
-        def bundles(self):
-            url = self.data['_links']['bundleManifests']['href']
-            time.sleep(60)  #FIX ME: remove this hacky work around by tuning the backend
-            logger.debug('Wait for 60 seconds until "_embedded" field is updated.')
-            response = requests.get(url, headers=self.auth_headers).json()
-            if '_embedded' in response:
-                return [bundleManifest['bundleUuid'] for bundleManifest in response['_embedded']['bundleManifests']]
-            else:
-                return []
+        def get_files(self):
+            return self._get_entity_list('files')
+
+        def get_projects(self):
+            return self._get_entity_list('projects')
+
+        def get_protocols(self):
+            return self._get_entity_list('protocols')
+
+        def get_processes(self):
+            return self._get_entity_list('processes')
+
+        def get_biomaterials(self):
+            return self._get_entity_list('biomaterials')
+
+        def _get_entity_list(self, entity_type):
+            url = self.data['_links'][entity_type]['href']
+            r = requests.get(url, headers=self.auth_headers)
+            r.raise_for_status()
+            files = r.json()
+            # TODO won't work for paginated result
+            result = files['_embedded'][entity_type] if files.get('_embedded') and files['_embedded'].get(entity_type) else []
+            return result
+
+        @property
+        def uuid(self):
+            return self.data['uuid']['uuid']
 
         def _load(self):
-            url = self.ingest_api_url + f'/submissionEnvelopes/{self.envelope_id}'
-            self.data = requests.get(url, headers=self.auth_headers).json()
+            if not self.url:
+                self.url = self.ingest_api_url + f'/submissionEnvelopes/{self.envelope_id}'
+
+            self.data = requests.get(self.url, headers=self.auth_headers).json()
 
 
 class IngestAuthAgent:
