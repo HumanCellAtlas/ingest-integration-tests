@@ -1,0 +1,13 @@
+{
+    "describedBy": "http://schema.integration.data.humancellatlas.org/type/file/5.3.4/analysis_file",
+    "schema_type": "file",
+    "file_core": {
+        "file_name": "possorted_genome_bam.bam.bai",
+        "file_format": "bai"
+    },
+    "provenance": {
+        "document_id": "d5f9b116-e9c1-49b4-8e3d-b28129165631",
+        "submission_date": "2019-03-01T15:15:16.554Z",
+        "update_date": "2019-03-01T15:20:42.227Z"
+    }
+}
