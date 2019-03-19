@@ -315,12 +315,12 @@ class TestEndToEndDCP(unittest.TestCase):
         return runner
 
 
-class TestSmartSeq2Run(TestEndToEndDCP):
+class TestRun(TestEndToEndDCP):
 
     def test_smartseq2_run(self):
         runner = self.ingest('SS2')
 
-    def test_10x_and_analysis_run(self):
+    def test_10x_analysis_run(self):
         analysis_runner = self.ingest_analysis('10x')
 
 
