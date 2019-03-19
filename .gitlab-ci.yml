@@ -3,10 +3,19 @@ image: python:3.6
 stages:
   - test
 
-job:
+test_primary_submission:
   stage: test
   script:
-     - PYTHONWARNINGS=ignore:ResourceWarning python -m unittest discover
+     - python -m unittest tests.test_end_to_end_dcp.TestRun.test_smartseq2_run
+  only:
+    - dev
+    - integration
+    - staging
+
+test_secondary_submission:
+  stage: test
+  script:
+     - python -m unittest tests.test_end_to_end_dcp.TestRun.test_10x_analysis_run
   only:
     - dev
     - integration
