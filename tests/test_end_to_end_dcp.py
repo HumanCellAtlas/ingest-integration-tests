@@ -20,7 +20,7 @@ from .ingest_agents import IngestUIAgent, IngestApiAgent, IngestAuthAgent
 from .dataset_fixture import DatasetFixture
 from ingest.api.ingestapi import IngestApi, BundleManifest
 
-DEPLOYMENTS = ('dev', 'integration')
+DEPLOYMENTS = ('dev', 'integration', 'staging')
 
 MINUTE = 60
 
@@ -315,12 +315,12 @@ class TestEndToEndDCP(unittest.TestCase):
         return runner
 
 
-class TestSmartSeq2Run(TestEndToEndDCP):
+class TestRun(TestEndToEndDCP):
 
     def test_smartseq2_run(self):
         runner = self.ingest('SS2')
 
-    def test_10x_and_analysis_run(self):
+    def test_10x_analysis_run(self):
         analysis_runner = self.ingest_analysis('10x')
 
 
