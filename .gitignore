@@ -100,4 +100,9 @@ ENV/
 # mypy
 .mypy_cache/
 .idea
+
 *gcp*.json
+tests/*gcp*.json
+
+# ignore 10x analysis data
+tests/fixtures/analyses/10x/data

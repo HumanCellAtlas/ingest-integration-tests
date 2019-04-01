@@ -1,4 +1,3 @@
-import glob
 import json
 import os
 
@@ -24,7 +23,7 @@ class DatasetFixture:
 
         self.config = {}
         self.dataset_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'fixtures/datasets',
+            os.path.join(os.path.dirname(__file__), 'datasets',
                          self.name))
         self._spreadsheet = None
         readme_json_path = os.path.join(self.dataset_path, 'README.json')
