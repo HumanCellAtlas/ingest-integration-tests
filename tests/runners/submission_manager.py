@@ -48,10 +48,20 @@ class SubmissionManager:
         WaitFor(self._envelope_is_valid).to_return_value(value=True)
         Progress.report(" envelope is valid.\n")
 
+    def wait_for_envelope_to_be_in_draft(self):
+        Progress.report("WAIT FOR VALIDATION...")
+        WaitFor(self._envelope_is_in_draft).to_return_value(value=True)
+        Progress.report(" envelope is in Draft.\n")
+
     def _envelope_is_valid(self):
         envelope_status = self.submission_envelope.reload().status()
         Progress.report(f"envelope status is {envelope_status}")
         return envelope_status in ['Valid']
+
+    def _envelope_is_in_draft(self):
+        envelope_status = self.submission_envelope.reload().status()
+        Progress.report(f"envelope status is {envelope_status}")
+        return envelope_status in ['Draft']
 
     @staticmethod
     def _run_command(cmd_and_args_list, expected_retcode=0):

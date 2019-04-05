@@ -1,0 +1,15 @@
+{
+    "describedBy": "https://schema.dev.data.humancellatlas.org/type/file/8.0.0/sequence_file",
+    "schema_type": "file",
+    "file_core": {
+        "file_name": "pbmc4k_1000_S1_L001_R1_001.fastq.gz",
+        "file_format": "fastq.gz",
+        "checksum": "eeaf6532a43b731e1ed9068bf32add47"
+    },
+    "read_index": "read1",
+    "lane_index": 1,
+    "read_length": 26,
+    "insdc_run_accessions": [
+        "SRR0000000"
+    ]
+}
