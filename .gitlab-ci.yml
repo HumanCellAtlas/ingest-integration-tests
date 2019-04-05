@@ -21,6 +21,15 @@ test_secondary_submission:
     - integration
     - staging
 
+test_big_submission:
+  stage: test
+  script:
+     - python -m unittest tests.test_ingest.TestRun.test_big_submission_run
+  only:
+    - dev
+    - integration
+    - staging
+
 before_script:
   - apt-get -y update
   - apt-get -y install jq
