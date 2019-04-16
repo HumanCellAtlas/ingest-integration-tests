@@ -50,7 +50,10 @@ class TestIngest(unittest.TestCase):
         derived_files = self._get_entities(derived_files_url, 'files')
         analysis_files = runner.analysis_submission.get_files()
 
-        self.assertEqual(derived_files, analysis_files,
+        derived_file_uuids = [file['uuid']['uuid'] for file in derived_files]
+        analysis_file_uuids = [file['uuid']['uuid'] for file in analysis_files]
+
+        self.assertEqual(derived_file_uuids, analysis_file_uuids,
                          'The analyses files must be linked to the analyses process.')
 
         input_files_url = runner.analysis_process['_links']['inputFiles'][
@@ -58,7 +61,10 @@ class TestIngest(unittest.TestCase):
         input_files = self._get_entities(input_files_url, 'files')
         primary_submission_files = runner.primary_submission.get_files()
 
-        self.assertEqual(input_files, primary_submission_files,
+        input_file_uuids = [file['uuid']['uuid'] for file in input_files]
+        primary_submission_file_uuids = [file['uuid']['uuid'] for file in primary_submission_files]
+
+        self.assertEqual(input_file_uuids, primary_submission_file_uuids,
                          'The primary submission files must be linked to the analyses process.')
 
         input_bundle_manifest_url = \
