@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import uuid
 
 import requests
 from ingest.api.ingestapi import IngestApi, BundleManifest
@@ -62,6 +63,7 @@ class AnalysisSubmissionRunner:
         submission_uuid = self.primary_submission.uuid
 
         bundle_manifest = BundleManifest()
+        bundle_manifest.bundleUuid = str(uuid.uuid4())
         bundle_manifest.envelopeUuid = submission_uuid
 
         bundle_manifest.fileProjectMap = {project['uuid']['uuid']: [project['uuid']['uuid']] for project in self.primary_submission.get_projects()}
