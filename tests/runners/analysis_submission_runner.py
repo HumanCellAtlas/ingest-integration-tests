@@ -55,7 +55,7 @@ class AnalysisSubmissionRunner:
         Progress.report(f"CREATING SUBMISSION with {spreadsheet_filename}...")
         self.primary_submission_id = self.ingest_broker.upload(
             dataset_fixture.metadata_spreadsheet_path)
-        Progress.report(f" submission ID is {self.primary_submission_id}\n")
+        Progress.report(f"PRIMARY submission ID is {self.primary_submission_id}\n")
         self.primary_submission = self.ingest_api.envelope(self.primary_submission_id)
 
     def mock_export(self):
@@ -77,7 +77,8 @@ class AnalysisSubmissionRunner:
     def create_analysis_submission(self):
         token = self.token_manager.get_token()
         submission_url = self.ingest_client_api.createSubmission(f'Bearer {token}')
-
+        Progress.report(
+            f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
         process = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_process), 'processes')
         protocol = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_protocol), 'protocols')
