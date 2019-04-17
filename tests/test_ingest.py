@@ -45,6 +45,8 @@ class TestIngest(unittest.TestCase):
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
         runner.run(dataset_fixture, analysis_fixture)
 
+        self.assertTrue(runner.bundle_manifest_uuid, 'The analysis process should be attached to an input bundle manifest')
+
         derived_files_url = runner.analysis_process['_links']['derivedFiles'][
             'href']
         derived_files = self._get_entities(derived_files_url, 'files')
