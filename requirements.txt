@@ -2,5 +2,5 @@ iso8601
 requests
 urllib3
 hca
-hca-ingest
+-e "git+https://github.com/HumanCellAtlas/ingest-client.git@71832c650ab32f2f8fe0c021a4c81c51ddad5ae4#egg=hca_ingest"
 awscli
