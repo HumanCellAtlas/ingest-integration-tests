@@ -78,7 +78,8 @@ class AnalysisSubmissionRunner:
 
     def create_analysis_submission(self):
         token = self.token_manager.get_token()
-        submission_url = self.ingest_client_api.createSubmission(f'Bearer {token}')
+        self.ingest_client_api.set_token(token)
+        submission_url = self.ingest_client_api.createSubmission()
         Progress.report(
             f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
