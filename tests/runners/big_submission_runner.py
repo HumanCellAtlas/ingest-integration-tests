@@ -26,7 +26,7 @@ class BigSubmissionRunner:
 
     def run(self, metadata_fixture):
         token = self.token_manager.get_token()
-        self.ingest_client_api.set_token(token)
+        self.ingest_client_api.set_token(f'Bearer {token}')
         submission_url = self.ingest_client_api.createSubmission()
         self.submission_envelope = self.ingest_api.envelope(envelope_id=None, url=submission_url)
 
