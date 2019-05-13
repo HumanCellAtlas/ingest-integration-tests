@@ -8,6 +8,7 @@ from tests.fixtures.analysis_submission_fixture import AnalysisSubmissionFixture
 from tests.fixtures.metadata_fixture import MetadataFixture
 from tests.runners.analysis_submission_runner import AnalysisSubmissionRunner
 from tests.runners.big_submission_runner import BigSubmissionRunner
+from tests.runners.update_submission_runner import UpdateSubmissionRunner
 from tests.runners.dataset_runner import DatasetRunner
 from tests.fixtures.dataset_fixture import DatasetFixture
 
@@ -87,6 +88,11 @@ class TestIngest(unittest.TestCase):
         runner = BigSubmissionRunner(self.deployment)
         runner.run(metadata_fixture)
 
+    def ingest_updates(self):
+        metadata_fixture = MetadataFixture()
+        runner = UpdateSubmissionRunner(self.deployment)
+        runner.run(metadata_fixture)
+
 
 class TestRun(TestIngest):
 
@@ -98,6 +104,9 @@ class TestRun(TestIngest):
 
     def test_big_submission_run(self):
         runner = self.ingest_big_submission()
+
+    def test_updates_run(self):
+        runner = self.ingest_updates()
 
 
 if __name__ == '__main__':
