@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient
@@ -33,11 +34,14 @@ class UpdateSubmissionRunner:
         biomaterial = json.dumps(metadata_fixture.biomaterial)
 
         created_metadata_uuids = []
+        canonical_document_urls = []
         for i in range(METADATA_COUNT):
             created_biomaterial = self.ingest_client_api.createEntity(submission_url,
                                                                       biomaterial,
                                                                       'biomaterials')
             created_metadata_uuids.append(created_biomaterial["uuid"]["uuid"])
+            canonical_document_urls.append(created_biomaterial["_links"]["self"]["href"])
+
 
         self.submission_manager = SubmissionManager(self.submission_envelope)
         self.submission_manager.wait_for_envelope_to_be_validated()
@@ -56,4 +60,10 @@ class UpdateSubmissionRunner:
 
         self.submission_manager = SubmissionManager(update_submission_envelope)
         self.submission_manager.wait_for_envelope_to_be_validated()
+        self.submission_manager.submit_envelope()
+        self.submission_manager.wait_for_envelope_to_be_submitted()
 
+        time.sleep(5) # sleeping here because upserts happen asynchronously post-submit
+        # TODO: modify this test to wait_for_envelope_to_be_processing
+        for canonical_document_resource in self.ingest_client_api.getEntities(submission_url, "biomaterials"):
+            assert canonical_document_resource["content"]["biomaterial_core"]["biomaterial_id"] == "updated_donor_id"
