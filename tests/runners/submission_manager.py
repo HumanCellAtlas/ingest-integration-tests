@@ -39,6 +39,9 @@ class SubmissionManager:
     def upload_files(self, files):
         self._run_command(['hca', 'upload', 'files', files])
 
+    def submit_envelope(self):
+        self.submission_envelope.submit()
+
     def forget_about_upload_area(self):
         self.upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
         self._run_command(['hca', 'upload', 'forget', self.upload_area_uuid])
@@ -47,6 +50,11 @@ class SubmissionManager:
         Progress.report("WAIT FOR VALIDATION...")
         WaitFor(self._envelope_is_valid).to_return_value(value=True)
         Progress.report(" envelope is valid.\n")
+
+    def wait_for_envelope_to_be_submitted(self):
+        Progress.report("WAIT FOR SUBMITTED...")
+        WaitFor(self._envelope_is_in_submitted).to_return_value(value=True)
+        Progress.report(" envelope is submitted.\n")
 
     def wait_for_envelope_to_be_in_draft(self):
         Progress.report("WAIT FOR VALIDATION...")
@@ -62,6 +70,11 @@ class SubmissionManager:
         envelope_status = self.submission_envelope.reload().status()
         Progress.report(f"envelope status is {envelope_status}")
         return envelope_status in ['Draft']
+
+    def _envelope_is_in_submitted(self):
+        envelope_status = self.submission_envelope.reload().status()
+        Progress.report(f"envelope status is {envelope_status}")
+        return envelope_status in ['Submitted']
 
     @staticmethod
     def _run_command(cmd_and_args_list, expected_retcode=0):

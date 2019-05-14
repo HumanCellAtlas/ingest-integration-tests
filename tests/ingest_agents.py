@@ -70,6 +70,10 @@ class IngestApiAgent:
         def status(self):
             return self.data['submissionState']
 
+        def submit(self):
+            submit_url = self.url + '/submissionEvent'
+            return requests.put(submit_url)
+
         def get_files(self):
             return self._get_entity_list('files')
 
@@ -93,6 +97,7 @@ class IngestApiAgent:
             # TODO won't work for paginated result
             result = files['_embedded'][entity_type] if files.get('_embedded') and files['_embedded'].get(entity_type) else []
             return result
+
 
         @property
         def uuid(self):
