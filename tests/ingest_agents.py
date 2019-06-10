@@ -55,7 +55,6 @@ class IngestApiAgent:
             if envelope_id or url:
                 self._load()
 
-
         def upload_credentials(self):
             """ Return upload area credentials or None if this envelope doesn't have an upload area yet """
             staging_details = self.data.get('stagingDetails', None)
@@ -73,6 +72,14 @@ class IngestApiAgent:
         def submit(self):
             submit_url = self.url + '/submissionEvent'
             return requests.put(submit_url)
+
+        def disable_indexing(self):
+            do_not_index = {'triggersAnalysis': False}
+            requests.patch(self.url, data=json.dumps(do_not_index))
+
+        def set_as_update_submission(self):
+            do_not_index = {'isUpdate': True}
+            requests.patch(self.url, data=json.dumps(do_not_index))
 
         def get_files(self):
             return self._get_entity_list('files')
