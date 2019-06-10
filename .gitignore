@@ -106,3 +106,5 @@ tests/*gcp*.json
 
 # ignore 10x analysis data
 tests/fixtures/analyses/10x/data
+
+_local/
