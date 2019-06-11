@@ -14,6 +14,7 @@ from tests.utils import Progress
 
 METADATA_COUNT = 10
 
+
 class UpdateSubmissionRunner:
     def __init__(self, deployment):
         self.deployment = deployment
@@ -85,7 +86,7 @@ class UpdateSubmissionRunner:
         submission_manager.get_upload_area_credentials()
         submission_manager.stage_data_files(dataset_fixture.config['data_files_location'])
         submission_manager.wait_for_envelope_to_be_validated()
-        submission_manager.submission_envelope.disable_indexing()
+        # submission_manager.submission_envelope.disable_indexing()
         submission_manager.submit_envelope()
         submission_manager.wait_for_envelope_to_complete()
 
