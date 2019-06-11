@@ -96,6 +96,9 @@ class IngestApiAgent:
         def get_biomaterials(self):
             return self._get_entity_list('biomaterials')
 
+        def get_bundle_manifests(self):
+            return self._get_entity_list('bundleManifests')
+
         def _get_entity_list(self, entity_type):
             url = self.data['_links'][entity_type]['href']
             r = requests.get(url, headers=self.auth_headers)
