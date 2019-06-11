@@ -14,7 +14,6 @@ from tests.utils import Progress
 
 METADATA_COUNT = 10
 
-
 class UpdateSubmissionRunner:
     def __init__(self, deployment):
         self.deployment = deployment
@@ -30,7 +29,6 @@ class UpdateSubmissionRunner:
 
         self.primary_submission = None
         self.update_submission = None
-
         self.old_values = {}
         self.new_values = {}
 
