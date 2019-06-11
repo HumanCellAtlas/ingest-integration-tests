@@ -4,3 +4,4 @@ urllib3
 hca
 -e "git+https://github.com/HumanCellAtlas/ingest-client.git@52dd0c54b3f6a13910992949eb697cc3970835dc#egg=hca_ingest"
 awscli
+nose

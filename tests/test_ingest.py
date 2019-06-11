@@ -89,9 +89,8 @@ class TestIngest(unittest.TestCase):
         runner.run(metadata_fixture)
 
     def ingest_updates(self):
-        metadata_fixture = MetadataFixture()
         runner = UpdateSubmissionRunner(self.deployment)
-        runner.run(metadata_fixture)
+        runner.run()
 
 
 class TestRun(TestIngest):
