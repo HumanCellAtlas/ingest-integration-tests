@@ -21,12 +21,14 @@ class AnalysisSubmissionRunner:
     def __init__(self, deployment):
         self.deployment = deployment
         self.ingest_broker = IngestUIAgent(deployment=deployment)
-        self.ingest_client_api = IngestApi(url=f"https://api.ingest.{self.deployment}.data.humancellatlas.org")
         self.ingest_api = IngestApiAgent(deployment=deployment)
         self.s2s_token_client = S2STokenClient()
         gcp_credentials_file = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
         self.s2s_token_client.setup_from_file(gcp_credentials_file)
         self.token_manager = TokenManager(token_client=self.s2s_token_client)
+        self.ingest_client_api = IngestApi(url=f"https://api.ingest.{self.deployment}.data.humancellatlas.org")
+        token = self.token_manager.get_token()
+        self.ingest_client_api.set_token(f'Bearer {token}')
 
         self.bundle_manifest_uuid = None
         self.analysis_submission = None
@@ -77,9 +79,7 @@ class AnalysisSubmissionRunner:
         return bundle_manifest.bundleUuid
 
     def create_analysis_submission(self):
-        token = self.token_manager.get_token()
-        self.ingest_client_api.set_token(f'Bearer {token}')
-        submission_url = self.ingest_client_api.createSubmission()
+        submission_url = self.ingest_client_api.create_submission()
         Progress.report(
             f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
