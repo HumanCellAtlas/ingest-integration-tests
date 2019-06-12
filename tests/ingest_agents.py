@@ -71,7 +71,9 @@ class IngestApiAgent:
 
         def submit(self):
             submit_url = self.url + '/submissionEvent'
-            return requests.put(submit_url)
+            r = requests.put(submit_url, headers=self.auth_headers)
+            r.raise_for_status()
+            return r
 
         def disable_indexing(self):
             do_not_index = {'triggersAnalysis': False}
@@ -79,7 +81,9 @@ class IngestApiAgent:
 
         def set_as_update_submission(self):
             do_not_index = {'isUpdate': True}
-            requests.patch(self.url, data=json.dumps(do_not_index))
+            r = requests.patch(self.url, data=json.dumps(do_not_index), headers=self.auth_headers)
+            r.raise_for_status()
+            return r
 
         def get_files(self):
             return self._get_entity_list('files')
