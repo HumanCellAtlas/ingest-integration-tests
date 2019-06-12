@@ -79,7 +79,8 @@ class AnalysisSubmissionRunner:
         return bundle_manifest.bundleUuid
 
     def create_analysis_submission(self):
-        submission_url = self.ingest_client_api.create_submission()
+        submission = self.ingest_client_api.create_submission()
+        submission_url = submission["_links"]["self"]["href"].rsplit("{")[0]
         Progress.report(
             f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
