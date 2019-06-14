@@ -62,7 +62,7 @@ class UpdateSubmissionRunner:
             update_content["biomaterial_core"]["biomaterial_id"] = f"updated_donor_id_{update}"
             self.new_values[uuid] = update_content["biomaterial_core"]["biomaterial_id"]
 
-            updated_biomaterial_resource = self.ingest_client_api.createEntity(
+            updated_biomaterial_resource = self.ingest_client_api.create_entity(
                 submission_url,
                 json.dumps(update_content),
                 'biomaterials',

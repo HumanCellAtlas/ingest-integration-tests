@@ -3,12 +3,10 @@ import os
 import time
 import uuid
 
-import requests
 from ingest.api.ingestapi import IngestApi, BundleManifest
+from ingest.api.requests_utils import create_session_with_retry
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
-from requests import Session
-from urllib3.util import retry
 
 from tests.fixtures.analysis_submission_fixture import \
     AnalysisSubmissionFixture
@@ -40,9 +38,8 @@ class AnalysisSubmissionRunner:
         self.analysis_fixture = AnalysisSubmissionFixture()
         self.primary_submission_id = None
         self.primary_submission = None
-
-        self.submission_manager = None
         self.session = create_session_with_retry()
+        self.submission_manager = None
 
     def run(self, dataset_fixture, analysis_fixture):
         self.create_primary_submission(dataset_fixture)
@@ -51,6 +48,11 @@ class AnalysisSubmissionRunner:
         self.analysis_fixture = analysis_fixture
         self.create_analysis_submission()
         self.submission_manager.wait_for_envelope_to_be_validated()
+
+    def _get_headers(self):
+        headers = {'Content-type': 'application/json',
+                   'Authorization': f'Bearer {self.token_manager.get_token()}'}
+        return headers
 
     def create_primary_submission(self, dataset_fixture):
         spreadsheet_filename = os.path.basename(
@@ -75,44 +77,32 @@ class AnalysisSubmissionRunner:
         bundle_manifest.fileFilesMap = {file['uuid']['uuid']: [file['uuid']['uuid']] for file in self.primary_submission.get_files()}
         bundle_manifest.dataFiles = [file['dataFileUuid'] for file in self.primary_submission.get_files()]
 
-        self.ingest_client_api.createBundleManifest(bundle_manifest)
+        self.ingest_client_api.create_bundle_manifest(bundle_manifest)
         return bundle_manifest.bundleUuid
 
     def create_analysis_submission(self):
         submission = self.ingest_client_api.create_submission()
         submission_url = submission["_links"]["self"]["href"].rsplit("{")[0]
-        Progress.report(
-            f"SECONDARY submission ID is {submission_url}\n")
+        Progress.report(f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
-        process = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_process), 'processes')
-        protocol = self.ingest_client_api.createEntity(submission_url, json.dumps(self.analysis_fixture.analysis_protocol), 'protocols')
+        process = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_process, 'processes')
+        protocol = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_protocol, 'protocols')
         self.analysis_process = process
         self.analysis_protocol = protocol
-
-        process_url = process['_links']['self']['href']
-        protocol_url = protocol['_links']['self']['href']
-
-        link_protocols_url = process['_links']['protocols']['href']
+        self.ingest_client_api.link_entity(process, protocol, 'protocols')
 
         add_input_bundle_url = process['_links']['add-input-bundles']['href']
         add_reference_files_url = process['_links']['add-file-reference']['href']
-
-        headers = {"Content-Type": "text/uri-list"}
-        r = self.session.put(link_protocols_url, headers=headers, data=protocol_url)
-        r.raise_for_status()
-
         input_bundle_uuid = self.bundle_manifest_uuid
         bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
-        r = self.session.put(add_input_bundle_url, headers={'Content-type': 'application/json'},
-                                     json=bundle_refs_dict)
+        r = self.session.put(add_input_bundle_url, headers=self._get_headers(), json=bundle_refs_dict)
         r.raise_for_status()
-
         files = self.analysis_fixture.files
 
         for file_content in files:
             analysis_filename = file_content['file_core']['file_name']
             file = {'fileName': analysis_filename, 'content': file_content}
-            r = requests.put(add_reference_files_url, json.dumps(file), headers={'Content-type': 'application/json'})
+            r = self.session.put(add_reference_files_url, json.dumps(file), headers=self._get_headers())
             r.raise_for_status()
 
         self.submission_manager = SubmissionManager(self.analysis_submission)
@@ -137,26 +127,3 @@ class AnalysisSubmissionRunner:
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/possorted_genome_bam.bam')
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/raw_barcodes.tsv')
         self.submission_manager.forget_about_upload_area()
-
-
-def create_session_with_retry() -> Session:
-    retry_policy = retry.Retry(
-        total=100,
-        # seems that this has a default value of 10,
-        # setting this to a very high number so that it'll respect the status retry count
-
-        status=17,
-        # status is the no. of retries if response is in status_forcelist,
-        # this count will retry for ~20 mins with back off timeout within
-
-        read=10,
-        status_forcelist=[500, 502, 503, 504, 409],
-        backoff_factor=0.6,
-        method_whitelist=frozenset(
-            ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
-    )
-    session = Session()
-    adapter = requests.adapters.HTTPAdapter(max_retries=retry_policy)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
