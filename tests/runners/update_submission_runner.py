@@ -1,7 +1,5 @@
 import datetime
-import json
 import os
-import time
 
 from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient
@@ -64,7 +62,7 @@ class UpdateSubmissionRunner:
 
             updated_biomaterial_resource = self.ingest_client_api.create_entity(
                 submission_url,
-                json.dumps(update_content),
+                update_content,
                 'biomaterials',
                 uuid=uuid)
 
