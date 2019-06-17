@@ -3,8 +3,9 @@ import os
 import time
 import uuid
 
-from ingest.api.ingestapi import IngestApi, BundleManifest
+from ingest.api.ingestapi import IngestApi
 from ingest.api.requests_utils import create_session_with_retry
+from ingest.exporter.bundle import BundleManifest
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
 
