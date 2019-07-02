@@ -39,29 +39,41 @@ class SubmissionManager:
     def upload_files(self, files):
         self._run_command(['hca', 'upload', 'files', files])
 
+    def submit_envelope(self):
+        self.submission_envelope.submit()
+
     def forget_about_upload_area(self):
         self.upload_area_uuid = urlparse(self.upload_credentials).path.split('/')[1]
         self._run_command(['hca', 'upload', 'forget', self.upload_area_uuid])
 
     def wait_for_envelope_to_be_validated(self):
         Progress.report("WAIT FOR VALIDATION...")
-        WaitFor(self._envelope_is_valid).to_return_value(value=True)
+        WaitFor(self._envelope_is_in_state, 'Valid').to_return_value(
+            value=True)
         Progress.report(" envelope is valid.\n")
+
+    def wait_for_envelope_to_be_submitted(self):
+        Progress.report("WAIT FOR SUBMITTED...")
+        WaitFor(self._envelope_is_in_state, 'Submitted').to_return_value(
+            value=True)
+        Progress.report(" envelope is submitted.\n")
 
     def wait_for_envelope_to_be_in_draft(self):
         Progress.report("WAIT FOR VALIDATION...")
-        WaitFor(self._envelope_is_in_draft).to_return_value(value=True)
+        WaitFor(self._envelope_is_in_state, 'Draft').to_return_value(
+            value=True)
         Progress.report(" envelope is in Draft.\n")
 
-    def _envelope_is_valid(self):
-        envelope_status = self.submission_envelope.reload().status()
-        Progress.report(f"envelope status is {envelope_status}")
-        return envelope_status in ['Valid']
+    def wait_for_envelope_to_complete(self):
+        Progress.report("WAIT FOR COMPLETE...")
+        WaitFor(self._envelope_is_in_state, 'Complete').to_return_value(
+            value=True)
+        Progress.report(" envelope is in Complete.\n")
 
-    def _envelope_is_in_draft(self):
+    def _envelope_is_in_state(self, state):
         envelope_status = self.submission_envelope.reload().status()
         Progress.report(f"envelope status is {envelope_status}")
-        return envelope_status in ['Draft']
+        return envelope_status in [state]
 
     @staticmethod
     def _run_command(cmd_and_args_list, expected_retcode=0):
