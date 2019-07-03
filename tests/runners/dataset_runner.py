@@ -35,5 +35,5 @@ class DatasetRunner:
         spreadsheet_filename = os.path.basename(bundle_fixture.metadata_spreadsheet_path)
         Progress.report(f"CREATING SUBMISSION with {spreadsheet_filename}...")
         self.submission_id = self.ingest_broker.upload(bundle_fixture.metadata_spreadsheet_path)
-        Progress.report(f" submission ID is {self.submission_id}\n")
+        Progress.report(f"submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{self.submission_id}\n")
         self.submission_envelope = self.ingest_api.envelope(self.submission_id)
