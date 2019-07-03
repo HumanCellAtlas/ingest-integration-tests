@@ -13,6 +13,23 @@ from tests.utils import Progress
 METADATA_COUNT = 10
 
 
+class BundleManifest:
+    def __init__(self, resource):
+        self._object = resource
+
+    @property
+    def fqid(self):
+        return f'{self.uuid}.{self.version}'
+
+    @property
+    def version(self):
+        return self._object.get('bundleVersion')
+
+    @property
+    def uuid(self):
+        return self._object.get('bundleVersion')
+
+
 class UpdateSubmissionRunner:
     def __init__(self, deployment):
         self.deployment = deployment
@@ -33,13 +50,19 @@ class UpdateSubmissionRunner:
 
     def run(self):
         self.primary_submission = self.run_primary_submission('SS2')
+        primary_bundle_manifests = self.primary_submission.get_bundle_manifests()
+        primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
+
+        Progress.report(f"PRIMARY BUNDLES: {' '.join(primary_bundle_fqids)}")
 
         self.update_submission = self.run_update_submission(self.primary_submission)
+        updated_bundle_manifests = self.update_submission.get_bundle_manifests()
+        update_bundle_fqids = [BundleManifest(obj).fqid for obj in updated_bundle_manifests]
 
-        primary_bundles = self.primary_submission.get_bundle_manifests()
-        updated_bundles = self.update_submission.get_bundle_manifests()
+        Progress.report(f"UPDATE BUNDLES: {' '.join(update_bundle_fqids)}")
 
         #TODO add assertions
+
 
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
         token = self.token_manager.get_token()
@@ -78,7 +101,7 @@ class UpdateSubmissionRunner:
         spreadsheet_filename = os.path.basename(dataset_fixture.metadata_spreadsheet_path)
         Progress.report(f"CREATING SUBMISSION with {spreadsheet_filename}...")
         submission_id = self.ingest_broker.upload(dataset_fixture.metadata_spreadsheet_path)
-        Progress.report(f"PRIMARY submission ID is {submission_id}\n")
+        Progress.report(f"PRIMARY submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{submission_id}\n")
         primary_submission = self.ingest_api.envelope(submission_id)
         submission_manager = SubmissionManager(primary_submission)
         submission_manager.get_upload_area_credentials()
