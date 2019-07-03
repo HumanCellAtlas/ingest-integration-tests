@@ -27,7 +27,7 @@ class BundleManifest:
 
     @property
     def uuid(self):
-        return self._object.get('bundleVersion')
+        return self._object.get('bundleUuid')
 
 
 class UpdateSubmissionRunner:
@@ -52,13 +52,14 @@ class UpdateSubmissionRunner:
         self.primary_submission = self.run_primary_submission('SS2')
         primary_bundle_manifests = self.primary_submission.get_bundle_manifests()
         primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
-
-        Progress.report(f"PRIMARY BUNDLES: {' '.join(primary_bundle_fqids)}")
+        projects = self.primary_submission.get_projects()
 
         self.update_submission = self.run_update_submission(self.primary_submission)
         updated_bundle_manifests = self.update_submission.get_bundle_manifests()
         update_bundle_fqids = [BundleManifest(obj).fqid for obj in updated_bundle_manifests]
 
+        Progress.report(f"PROJECT UUID: {projects[0]['uuid']['uuid']}")
+        Progress.report(f"PRIMARY BUNDLES: {' '.join(primary_bundle_fqids)}")
         Progress.report(f"UPDATE BUNDLES: {' '.join(update_bundle_fqids)}")
 
         #TODO add assertions
