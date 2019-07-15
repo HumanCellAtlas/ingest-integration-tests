@@ -27,16 +27,17 @@ class BigSubmissionRunner:
     def run(self, metadata_fixture):
         token = self.token_manager.get_token()
         self.ingest_client_api.set_token(f'Bearer {token}')
-        submission_url = self.ingest_client_api.createSubmission()
+        submission = self.ingest_client_api.create_submission()
+        submission_url = submission["_links"]["self"]["href"]
         self.submission_envelope = self.ingest_api.envelope(envelope_id=None, url=submission_url)
 
-        biomaterial = json.dumps(metadata_fixture.biomaterial)
-        file = json.dumps(metadata_fixture.sequence_file)
+        biomaterial = metadata_fixture.biomaterial
+        file = metadata_fixture.sequence_file
         filename = metadata_fixture.sequence_file['file_core']['file_name']
-        self.ingest_client_api.createFile(submission_url, filename, file)
+        self.ingest_client_api.create_file(submission_url, filename, file)
 
         for i in range(METADATA_COUNT):
-            self.ingest_client_api.createEntity(submission_url,
+            self.ingest_client_api.create_entity(submission_url,
                                                       biomaterial,
                                                       'biomaterials')
 

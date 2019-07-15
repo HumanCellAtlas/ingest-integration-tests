@@ -55,7 +55,6 @@ class IngestApiAgent:
             if envelope_id or url:
                 self._load()
 
-
         def upload_credentials(self):
             """ Return upload area credentials or None if this envelope doesn't have an upload area yet """
             staging_details = self.data.get('stagingDetails', None)
@@ -69,6 +68,22 @@ class IngestApiAgent:
 
         def status(self):
             return self.data['submissionState']
+
+        def submit(self):
+            submit_url = self.url + '/submissionEvent'
+            r = requests.put(submit_url, headers=self.auth_headers)
+            r.raise_for_status()
+            return r
+
+        def disable_indexing(self):
+            do_not_index = {'triggersAnalysis': False}
+            requests.patch(self.url, data=json.dumps(do_not_index))
+
+        def set_as_update_submission(self):
+            do_not_index = {'isUpdate': True}
+            r = requests.patch(self.url, data=json.dumps(do_not_index), headers=self.auth_headers)
+            r.raise_for_status()
+            return r
 
         def get_files(self):
             return self._get_entity_list('files')
@@ -85,6 +100,9 @@ class IngestApiAgent:
         def get_biomaterials(self):
             return self._get_entity_list('biomaterials')
 
+        def get_bundle_manifests(self):
+            return self._get_entity_list('bundleManifests')
+
         def _get_entity_list(self, entity_type):
             url = self.data['_links'][entity_type]['href']
             r = requests.get(url, headers=self.auth_headers)
@@ -93,6 +111,7 @@ class IngestApiAgent:
             # TODO won't work for paginated result
             result = files['_embedded'][entity_type] if files.get('_embedded') and files['_embedded'].get(entity_type) else []
             return result
+
 
         @property
         def uuid(self):
