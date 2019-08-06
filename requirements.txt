@@ -2,6 +2,6 @@ iso8601
 requests
 urllib3
 hca
--e "git+https://github.com/HumanCellAtlas/ingest-client.git@45e854c#egg=hca_ingest"
+-e "git+https://github.com/HumanCellAtlas/ingest-client.git@dd9bb7d#egg=hca_ingest"
 awscli
 nose
