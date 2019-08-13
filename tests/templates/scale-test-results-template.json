@@ -1,0 +1,13 @@
+{
+  "attachments": [
+    {
+      "fallback": "Scale test results",
+      "color": "#36a64f",
+      "author_name": "Ingest locust test",
+      "author_link": "https://github.com/HumanCellAtlas/ingest-api-tests",
+      "title": "Scale test results",
+      "text": "",
+      "fields": []
+    }
+  ]
+}
