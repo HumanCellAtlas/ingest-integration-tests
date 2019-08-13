@@ -98,7 +98,7 @@ class TestIngest(unittest.TestCase):
 
     def ingest_scale(self):
         runner = ScaleTestRunner()
-        runner.run("http://locust.ingest.testing.data.humancellatlas.org", 50, 5, 1* 5)
+        runner.run("http://locust.ingest.testing.data.humancellatlas.org", 50, 5, 2 * 60)
 
 
 class TestRun(TestIngest):
