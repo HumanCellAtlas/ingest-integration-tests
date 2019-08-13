@@ -4,7 +4,6 @@ import time
 import os
 import codecs
 import json
-from copy import deepcopy
 from tests.fixtures.util import load_file
 
 
@@ -25,53 +24,58 @@ class ScaleTestRunner:
 
             stop_swarm_request = requests.get(stop_warm_api)
 
-            slack_payload = ScaleTestRunner._slack_payload()
-            slack_payload = ScaleTestRunner._add_slack_payload_field(slack_payload, "Num. users", str(num_users))
-            slack_payload = ScaleTestRunner._add_slack_payload_text_line(slack_payload, ",".join(csv_results_reader.fieldnames))
+            slack_payload = SlackPayload()
+            slack_payload.add_slack_payload_field("Num. users", str(num_users))
+            slack_payload.add_slack_payload_text_line(",".join(csv_results_reader.fieldnames))
 
             rows = list()
             for row in csv_results_reader:
                 rows.append(row)
                 row_values = list(row.values())
-                slack_payload = ScaleTestRunner._add_slack_payload_text_line(slack_payload, ",".join(row_values))
+                slack_payload.add_slack_payload_text_line(",".join(row_values))
 
             last_row = rows[-1]
-            slack_payload = ScaleTestRunner._format_results_jist(slack_payload, last_row)
+            slack_payload.format_results_jist(last_row)
             slack_webhook_url = ScaleTestRunner._get_slack_webhook_url()
-            requests.post(slack_webhook_url, json=True, data=json.dumps(slack_payload))
+            requests.post(slack_webhook_url, json=True, data=json.dumps(slack_payload.to_dict()))
         else:
             raise Exception(f'Error requesting locust swarm -- \n status code %s\n response %s',
                             str(start_swarm_request.status_code),
                             str(start_swarm_request.text))
 
-    @staticmethod
-    def _slack_payload() -> dict:
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        return load_file(f'{dir_path}/../templates/scale-test-results-template.json')
-
-    @staticmethod
-    def _format_results_jist(slack_payload, final_results_row: dict) -> dict:
-        for result_key, result_value in final_results_row.items():
-            slack_payload = ScaleTestRunner._add_slack_payload_field(slack_payload, result_key, result_value)
-        return slack_payload
-
-    @staticmethod
-    def _add_slack_payload_field(slack_payload: dict, title: str, value: str) -> dict:
-        slack_payload = deepcopy(slack_payload)
-        slack_payload["attachments"][0]["fields"].append({
-                "title": title,
-                "value": value,
-                "short": False
-        })
-        return slack_payload
-
-    @staticmethod
-    def _add_slack_payload_text_line(slack_payload: dict, text: str) -> dict:
-        slack_payload = deepcopy(slack_payload)
-        slack_payload["attachments"][0]["text"] = "\n".join([slack_payload["attachments"][0]["text"], text])
-        return slack_payload
 
     @staticmethod
     def _get_slack_webhook_url() -> str:
         slack_webhook = load_file(os.environ.get('SLACK_WEBHOOK_URL'))
         return slack_webhook["webhook_url"]
+
+
+class SlackPayload:
+
+    def __init__(self):
+        self._slack_payload = SlackPayload._init_slack_payload()
+
+    @staticmethod
+    def _init_slack_payload() -> dict:
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        return load_file(f'{dir_path}/../templates/scale-test-results-template.json')
+
+    def format_results_jist(self, final_results_row: dict) -> dict:
+        for result_key, result_value in final_results_row.items():
+            self.add_slack_payload_field(result_key, result_value)
+        return self._slack_payload
+
+    def add_slack_payload_field(self, title: str, value: str) -> dict:
+        self._slack_payload["attachments"][0]["fields"].append({
+                "title": title,
+                "value": value,
+                "short": False
+        })
+        return self._slack_payload
+
+    def add_slack_payload_text_line(self, text: str) -> dict:
+        self._slack_payload["attachments"][0]["text"] = "\n".join([self._slack_payload["attachments"][0]["text"], text])
+        return self._slack_payload
+
+    def to_dict(self) -> dict:
+        return self._slack_payload
