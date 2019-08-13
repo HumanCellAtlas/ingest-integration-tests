@@ -26,6 +26,7 @@ class ScaleTestRunner:
             stop_swarm_request = requests.get(stop_warm_api)
 
             slack_payload = ScaleTestRunner._slack_payload()
+            slack_payload = ScaleTestRunner._add_slack_payload_field(slack_payload, "Num. users", str(num_users))
             slack_payload = ScaleTestRunner._add_slack_payload_text_line(slack_payload, ",".join(csv_results_reader.fieldnames))
 
             rows = list()
