@@ -13,7 +13,7 @@ from tests.runners.scale_test_runner import ScaleTestRunner
 from tests.runners.dataset_runner import DatasetRunner
 from tests.fixtures.dataset_fixture import DatasetFixture
 
-DEPLOYMENTS = ('dev', 'integration', 'staging')
+DEPLOYMENTS = ('testing', 'dev', 'integration', 'staging')
 
 
 class TestIngest(unittest.TestCase):
