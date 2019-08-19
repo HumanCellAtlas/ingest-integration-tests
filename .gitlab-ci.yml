@@ -40,9 +40,18 @@ test_update_submission:
     - integration
     - staging
 
+test_scale_test:
+  stage: test
+  script:
+     - python -m unittest tests.test_ingest.TestRun.test_scale
+  only:
+    - testing
+
 before_script:
   - apt-get -y update
   - apt-get -y install jq
   - pip install -r requirements.txt
   - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/${CI_COMMIT_REF_NAME}/gcp-credentials.json | jq -r .SecretString > gcp-credentials.json
+  - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/tests/slack-webhook > webhook.json
   - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp-credentials.json
+  - export SLACK_WEBHOOK_URL=$(pwd -P)/webhook.json

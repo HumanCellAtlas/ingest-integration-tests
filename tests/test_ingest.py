@@ -9,6 +9,7 @@ from tests.fixtures.metadata_fixture import MetadataFixture
 from tests.runners.analysis_submission_runner import AnalysisSubmissionRunner
 from tests.runners.big_submission_runner import BigSubmissionRunner
 from tests.runners.update_submission_runner import UpdateSubmissionRunner
+from tests.runners.scale_test_runner import ScaleTestRunner
 from tests.runners.dataset_runner import DatasetRunner
 from tests.fixtures.dataset_fixture import DatasetFixture
 
@@ -95,6 +96,10 @@ class TestIngest(unittest.TestCase):
         runner = UpdateSubmissionRunner(self.deployment)
         runner.run()
 
+    def ingest_scale(self):
+        runner = ScaleTestRunner()
+        runner.run("http://locust.ingest.testing.data.humancellatlas.org", 50, 5, 2 * 60)
+
 
 class TestRun(TestIngest):
 
@@ -109,6 +114,9 @@ class TestRun(TestIngest):
 
     def test_updates_run(self):
         runner = self.ingest_updates()
+
+    def test_scale(self):
+        runner = self.ingest_scale()
 
 
 if __name__ == '__main__':
