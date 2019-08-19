@@ -43,9 +43,9 @@ test_update_submission:
 test_scale_test:
   stage: test
   script:
-     - python -m unittest tests.test_ingest.TestRun.tes
+     - python -m unittest tests.test_ingest.TestRun.test_scale
   only:
-    - dev
+    - testing
 
 before_script:
   - apt-get -y update
