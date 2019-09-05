@@ -2,6 +2,7 @@ import json
 import os
 import time
 import uuid
+import requests
 
 from ingest.api.ingestapi import IngestApi
 from ingest.api.requests_utils import create_session_with_retry
@@ -96,7 +97,7 @@ class AnalysisSubmissionRunner:
         add_input_bundle_url = process['_links']['add-input-bundles']['href']
         input_bundle_uuid = self.bundle_manifest_uuid
         bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
-        r = self.session.put(add_input_bundle_url, headers=self._get_headers(), json=bundle_refs_dict)
+        r = self.session.post(add_input_bundle_url, headers=self._get_headers(), json=bundle_refs_dict)
         r.raise_for_status()
         files = self.analysis_fixture.files
 
