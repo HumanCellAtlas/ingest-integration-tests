@@ -95,6 +95,8 @@ class TestIngest(unittest.TestCase):
         runner = UpdateSubmissionRunner(self.deployment)
         runner.run()
 
+        self.assertEqual(len(runner.updated_bundle_fqids), 2, "There should be 2 bundles updated.")
+
 
 class TestRun(TestIngest):
 
