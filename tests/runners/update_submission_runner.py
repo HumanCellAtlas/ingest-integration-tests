@@ -68,11 +68,10 @@ class UpdateSubmissionRunner:
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
         token = self.token_manager.get_token()
         self.ingest_client_api.set_token(f'Bearer {token}')
-        submission = self.ingest_client_api.create_submission()
+        submission = self.ingest_client_api.create_submission(update_submission=True)
         submission_url = submission["_links"]["self"]["href"]
         Progress.report(f"UPDATE submission ID is {submission_url}\n")
         update_submission = self.ingest_api.envelope(url=submission_url)
-        update_submission.set_as_update_submission()
 
         biomaterials = primary_submission.get_biomaterials()
 
