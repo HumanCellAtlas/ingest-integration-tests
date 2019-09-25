@@ -1,8 +1,11 @@
 import subprocess
 from urllib.parse import urlparse
+from requests import HTTPError
 
 from tests.utils import Progress
 from tests.wait_for import WaitFor
+
+import time
 
 MINUTE = 60
 
@@ -74,6 +77,20 @@ class SubmissionManager:
         envelope_status = self.submission_envelope.reload().status()
         Progress.report(f"envelope status is {envelope_status}")
         return envelope_status in [state]
+
+    def ensure_submitted(self):
+        try:
+            self.submit_envelope()
+            if self._envelope_is_in_state('Submitted'):
+                return
+            else:
+                time.sleep(1)
+                return self.ensure_submitted()
+        except HTTPError:
+            if self._envelope_is_in_state('Submitted'):
+                return
+            else:
+                raise
 
     @staticmethod
     def _run_command(cmd_and_args_list, expected_retcode=0):
