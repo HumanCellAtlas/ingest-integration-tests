@@ -2,6 +2,7 @@ import json
 import os
 import time
 import uuid
+import requests
 
 from ingest.api.ingestapi import IngestApi
 from ingest.api.requests_utils import create_session_with_retry
@@ -88,18 +89,25 @@ class AnalysisSubmissionRunner:
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
         process = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_process, 'processes')
         protocol = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_protocol, 'protocols')
+        input_files = self.primary_submission.get_files()
         self.analysis_process = process
         self.analysis_protocol = protocol
         self.ingest_client_api.link_entity(process, protocol, 'protocols')
 
         add_input_bundle_url = process['_links']['add-input-bundles']['href']
-        add_reference_files_url = process['_links']['add-file-reference']['href']
         input_bundle_uuid = self.bundle_manifest_uuid
         bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
-        r = self.session.put(add_input_bundle_url, headers=self._get_headers(), json=bundle_refs_dict)
+        r = self.session.post(add_input_bundle_url, headers=self._get_headers(), json=bundle_refs_dict)
         r.raise_for_status()
         files = self.analysis_fixture.files
 
+        add_input_file_url = process['_links']['inputFiles']['href']
+        input_file_uuids = [file['uuid']['uuid'] for file in input_files]
+        for file_uuid in input_file_uuids:
+            r = self.session.post(add_input_file_url, json.dumps({"inputFileUuid": file_uuid}), headers=self._get_headers())
+            r.raise_for_status()
+
+        add_reference_files_url = process['_links']['add-file-reference']['href']
         for file_content in files:
             analysis_filename = file_content['file_core']['file_name']
             file = {'fileName': analysis_filename, 'content': file_content}

@@ -48,31 +48,32 @@ class UpdateSubmissionRunner:
         self.old_values = {}
         self.new_values = {}
 
+        self.primary_bundle_fqids = None
+        self.updated_bundle_fqids = None
+
     def run(self):
         self.primary_submission = self.run_primary_submission('SS2')
         primary_bundle_manifests = self.primary_submission.get_bundle_manifests()
-        primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
+        self.primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
         projects = self.primary_submission.get_projects()
 
         self.update_submission = self.run_update_submission(self.primary_submission)
         updated_bundle_manifests = self.update_submission.get_bundle_manifests()
-        update_bundle_fqids = [BundleManifest(obj).fqid for obj in updated_bundle_manifests]
+        self.updated_bundle_fqids = [BundleManifest(obj).fqid for obj in updated_bundle_manifests]
 
         Progress.report(f"PROJECT UUID: {projects[0]['uuid']['uuid']}")
-        Progress.report(f"PRIMARY BUNDLES: {' '.join(primary_bundle_fqids)}")
-        Progress.report(f"UPDATE BUNDLES: {' '.join(update_bundle_fqids)}")
+        Progress.report(f"PRIMARY BUNDLES: {' '.join(self.primary_bundle_fqids)}")
+        Progress.report(f"UPDATE BUNDLES: {' '.join(self.updated_bundle_fqids)}")
 
-        #TODO add assertions
-
+        return self
 
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
         token = self.token_manager.get_token()
         self.ingest_client_api.set_token(f'Bearer {token}')
-        submission = self.ingest_client_api.create_submission()
+        submission = self.ingest_client_api.create_submission(update_submission=True)
         submission_url = submission["_links"]["self"]["href"]
         Progress.report(f"UPDATE submission ID is {submission_url}\n")
         update_submission = self.ingest_api.envelope(url=submission_url)
-        update_submission.set_as_update_submission()
 
         biomaterials = primary_submission.get_biomaterials()
 
@@ -92,7 +93,8 @@ class UpdateSubmissionRunner:
 
         submission_manager = SubmissionManager(update_submission)
         submission_manager.wait_for_envelope_to_be_validated()
-        submission_manager.submit_envelope()
+        submission_manager.ensure_submitted()
+        submission_manager.wait_for_envelope_to_be_submitted()
         submission_manager.wait_for_envelope_to_complete()
         # check old bundle and new bundle
         return update_submission
@@ -104,10 +106,15 @@ class UpdateSubmissionRunner:
         submission_id = self.ingest_broker.upload(dataset_fixture.metadata_spreadsheet_path)
         Progress.report(f"PRIMARY submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{submission_id}\n")
         primary_submission = self.ingest_api.envelope(submission_id)
+
         submission_manager = SubmissionManager(primary_submission)
         submission_manager.get_upload_area_credentials()
         submission_manager.stage_data_files(dataset_fixture.config['data_files_location'])
         submission_manager.wait_for_envelope_to_be_validated()
+
+        # Disable indexing since this is an internal test for ingest, we don't need to trigger analysis pipelines
+        submission_manager.submission_envelope.disable_indexing()
+
         submission_manager.submit_envelope()
         submission_manager.wait_for_envelope_to_complete()
 

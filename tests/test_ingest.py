@@ -56,6 +56,8 @@ class TestIngest(unittest.TestCase):
         derived_file_uuids = [file['uuid']['uuid'] for file in derived_files]
         analysis_file_uuids = [file['uuid']['uuid'] for file in analysis_files]
 
+        self.assertTrue(derived_file_uuids, 'There must be files in the analysis submission')
+
         self.assertEqual(derived_file_uuids, analysis_file_uuids,
                          'The analyses files must be linked to the analyses process.')
 
@@ -67,6 +69,7 @@ class TestIngest(unittest.TestCase):
         input_file_uuids = [file['uuid']['uuid'] for file in input_files]
         primary_submission_file_uuids = [file['uuid']['uuid'] for file in primary_submission_files]
 
+        self.assertTrue(input_file_uuids, 'There must be files from the primary submission')
         self.assertEqual(input_file_uuids, primary_submission_file_uuids,
                          'The primary submission files must be linked to the analyses process.')
 
@@ -91,6 +94,8 @@ class TestIngest(unittest.TestCase):
     def ingest_updates(self):
         runner = UpdateSubmissionRunner(self.deployment)
         runner.run()
+
+        self.assertEqual(len(runner.updated_bundle_fqids), 2, "There should be 2 bundles updated.")
 
 
 class TestRun(TestIngest):
