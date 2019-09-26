@@ -93,7 +93,7 @@ class UpdateSubmissionRunner:
 
         submission_manager = SubmissionManager(update_submission)
         submission_manager.wait_for_envelope_to_be_validated()
-        submission_manager.ensure_submitted()
+        submission_manager.submit_envelope()
         submission_manager.wait_for_envelope_to_be_submitted()
         submission_manager.wait_for_envelope_to_complete()
         # check old bundle and new bundle
