@@ -69,8 +69,6 @@ class UpdateSubmissionRunner:
         return self
 
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
-        token = self.token_manager.get_token()
-        self.ingest_client_api.set_token(f'Bearer {token}')
         update_spreadsheet_content = self.ingest_broker.download(primary_submission.uuid)
         update_spreadsheet_filename = f'{primary_submission.uuid}.xlsx'
         update_spreadsheet_path = os.path.abspath(os.path.join(os.path.dirname(__file__),update_spreadsheet_filename))
