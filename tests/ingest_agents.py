@@ -16,14 +16,21 @@ class IngestUIAgent:
         self.ingest_auth_agent = IngestAuthAgent()
         self.auth_headers = self.ingest_auth_agent.make_auth_header()
 
-    def upload(self, metadata_spreadsheet_path):
+    def upload(self, metadata_spreadsheet_path, is_update=False):
         url = self.ingest_broker_url + '/api_upload'
+        if is_update:
+            url = self.ingest_broker_url + '/api_upload_update'
+
         files = {'file': open(metadata_spreadsheet_path, 'rb')}
         response = requests.post(url, files=files, allow_redirects=False, headers=self.auth_headers)
         if response.status_code != requests.codes.found and response.status_code != requests.codes.created:
             raise RuntimeError(f"POST {url} response was {response.status_code}: {response.content}")
         return json.loads(response.content)['details']['submission_id']
 
+    def download(self, submission_uuid):
+        url = self.ingest_broker_url + f'/submissions/{submission_uuid}/spreadsheet'
+        response = requests.get(url)
+        return response.content
 
 class IngestApiAgent:
 

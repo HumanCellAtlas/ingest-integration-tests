@@ -1,6 +1,7 @@
 import datetime
 import os
 
+import openpyxl
 from ingest.api.ingestapi import IngestApi
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
@@ -68,28 +69,22 @@ class UpdateSubmissionRunner:
         return self
 
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
-        token = self.token_manager.get_token()
-        self.ingest_client_api.set_token(f'Bearer {token}')
-        submission = self.ingest_client_api.create_submission(update_submission=True)
-        submission_url = submission["_links"]["self"]["href"]
-        Progress.report(f"UPDATE submission ID is {submission_url}\n")
-        update_submission = self.ingest_api.envelope(url=submission_url)
+        update_spreadsheet_content = self.ingest_broker.download(primary_submission.uuid)
+        update_spreadsheet_filename = f'{primary_submission.uuid}.xlsx'
+        update_spreadsheet_path = os.path.abspath(os.path.join(os.path.dirname(__file__),update_spreadsheet_filename))
+        with open(update_spreadsheet_path, 'wb') as f:
+            f.write(update_spreadsheet_content)
 
-        biomaterials = primary_submission.get_biomaterials()
+        update_spreadsheet = openpyxl.load_workbook(update_spreadsheet_path)
+        project_worksheet = update_spreadsheet['Project']
+        if project_worksheet['B4'].value != "project.project_core.project_short_name":
+            raise RuntimeError("Project shortname is no longer in cell project!B4")
+        project_worksheet['B6'] = f"UPDATED {project_worksheet['B6'].value}"
+        update_spreadsheet.save(update_spreadsheet_path)
 
-        for biomaterial in biomaterials:
-            update_content = dict(biomaterial.get('content'))
-            uuid = biomaterial.get('uuid', {}).get('uuid', None)
-            update = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H%M%S.%fZ")
-            self.old_values[uuid] = update_content["biomaterial_core"]["biomaterial_id"]
-            update_content["biomaterial_core"]["biomaterial_id"] = f"updated_donor_id_{update}"
-            self.new_values[uuid] = update_content["biomaterial_core"]["biomaterial_id"]
-
-            updated_biomaterial_resource = self.ingest_client_api.create_entity(
-                submission_url,
-                update_content,
-                'biomaterials',
-                uuid=uuid)
+        update_submission_id = self.ingest_broker.upload(update_spreadsheet_path, is_update=True)
+        Progress.report(f"UPDATE submission ID is {update_submission_id}\n")
+        update_submission = self.ingest_api.envelope(envelope_id=update_submission_id)
 
         submission_manager = SubmissionManager(update_submission)
         submission_manager.wait_for_envelope_to_be_validated()
