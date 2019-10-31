@@ -5,3 +5,4 @@ hca
 -e "git+https://github.com/HumanCellAtlas/ingest-client.git@dd9bb7d#egg=hca_ingest"
 awscli
 nose
+openpyxl
