@@ -2,5 +2,4 @@
 
 
 # Ingest Integration Tests
-Integration tests for ingest and upload only to be run in the development environment
-
+Integration tests for ingest and upload run in non-production environments.
