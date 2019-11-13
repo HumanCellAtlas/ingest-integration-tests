@@ -1,10 +1,7 @@
-import datetime
 import os
 
 import openpyxl
 from ingest.api.ingestapi import IngestApi
-from ingest.utils.s2s_token_client import S2STokenClient
-from ingest.utils.token_manager import TokenManager
 
 from tests.fixtures.dataset_fixture import DatasetFixture
 from tests.ingest_agents import IngestApiAgent, IngestUIAgent
@@ -32,17 +29,12 @@ class BundleManifest:
 
 
 class UpdateSubmissionRunner:
-    def __init__(self, deployment):
+    def __init__(self, deployment, ingest_broker: IngestUIAgent, ingest_api: IngestApiAgent,
+                 ingest_client_api: IngestApi):
         self.deployment = deployment
-
-        self.s2s_token_client = S2STokenClient()
-        gcp_credentials_file = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-        self.s2s_token_client.setup_from_file(gcp_credentials_file)
-        self.token_manager = TokenManager(token_client=self.s2s_token_client)
-
-        self.ingest_broker = IngestUIAgent(deployment=deployment)
-        self.ingest_api = IngestApiAgent(deployment=deployment)
-        self.ingest_client_api = IngestApi(url=f"https://api.ingest.{self.deployment}.data.humancellatlas.org")
+        self.ingest_broker = ingest_broker
+        self.ingest_api = ingest_api
+        self.ingest_client_api = ingest_client_api
 
         self.primary_submission = None
         self.update_submission = None
@@ -53,7 +45,7 @@ class UpdateSubmissionRunner:
         self.updated_bundle_fqids = None
 
     def run(self):
-        self.primary_submission = self.run_primary_submission('SS2')
+        self.primary_submission = self.ingest_api.envelope(envelope_id='5dc4e8d7b26d240008a21c1c')
         primary_bundle_manifests = self.primary_submission.get_bundle_manifests()
         self.primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
         projects = self.primary_submission.get_projects()
@@ -71,7 +63,7 @@ class UpdateSubmissionRunner:
     def run_update_submission(self, primary_submission: IngestApiAgent.SubmissionEnvelope):
         update_spreadsheet_content = self.ingest_broker.download(primary_submission.uuid)
         update_spreadsheet_filename = f'{primary_submission.uuid}.xlsx'
-        update_spreadsheet_path = os.path.abspath(os.path.join(os.path.dirname(__file__),update_spreadsheet_filename))
+        update_spreadsheet_path = os.path.abspath(os.path.join(os.path.dirname(__file__), update_spreadsheet_filename))
         with open(update_spreadsheet_path, 'wb') as f:
             f.write(update_spreadsheet_content)
 
@@ -99,8 +91,9 @@ class UpdateSubmissionRunner:
         spreadsheet_filename = os.path.basename(dataset_fixture.metadata_spreadsheet_path)
         Progress.report(f"CREATING SUBMISSION with {spreadsheet_filename}...")
         submission_id = self.ingest_broker.upload(dataset_fixture.metadata_spreadsheet_path)
-        Progress.report(f"PRIMARY submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{submission_id}\n")
-        primary_submission = self.ingest_api.envelope(submission_id)
+        Progress.report(
+            f"PRIMARY submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{submission_id}\n")
+        primary_submission = self.ingest_api.envelope('5dc4e8e8b26d240008a21dda')
 
         submission_manager = SubmissionManager(primary_submission)
         submission_manager.get_upload_area_credentials()
@@ -114,4 +107,3 @@ class UpdateSubmissionRunner:
         submission_manager.wait_for_envelope_to_complete()
 
         return primary_submission
-
