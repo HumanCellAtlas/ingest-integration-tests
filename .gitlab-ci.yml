@@ -11,6 +11,7 @@ test_primary_submission:
     - dev
     - integration
     - staging
+    - task/refactor-di
 
 test_secondary_submission:
   stage: test
@@ -20,6 +21,8 @@ test_secondary_submission:
     - dev
     - integration
     - staging
+    - task/refactor-di
+
 
 test_big_submission:
   stage: test
@@ -29,6 +32,7 @@ test_big_submission:
     - dev
     - integration
     - staging
+    - task/refactor-di
 
 test_update_submission:
   stage: test
@@ -38,6 +42,7 @@ test_update_submission:
     - dev
     - integration
     - staging
+    - task/refactor-di
 
 before_script:
   - apt-get -y update
