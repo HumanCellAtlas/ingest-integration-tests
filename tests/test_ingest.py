@@ -23,10 +23,10 @@ DEPLOYMENTS = ('dev', 'integration', 'staging')
 class TestIngest(unittest.TestCase):
 
     def setUp(self):
-        self.deployment = os.environ.get('CI_COMMIT_REF_NAME', None)
+        self.deployment = os.environ.get('DEPLOYMENT_ENV', None)
 
         if self.deployment not in DEPLOYMENTS:
-            raise RuntimeError(f'CI_COMMIT_REF_NAME environment variable must be one of {DEPLOYMENTS}')
+            raise RuntimeError(f'DEPLOYMENT_ENV environment variable must be one of {DEPLOYMENTS}')
 
         self.ingest_client_api = IngestApi(url=f"https://api.ingest.{self.deployment}.data.humancellatlas.org")
         self.s2s_token_client = S2STokenClient()
