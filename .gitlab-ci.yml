@@ -3,10 +3,19 @@ image: python:3.6
 stages:
   - test
 
+test_ingest_to_upload:
+  stage: test
+  script:
+     - python -m unittest tests.test_ingest.TestRun.test_ss2_ingest_to_upload
+  only:
+    - dev
+    - integration
+    - staging
+
 test_primary_submission:
   stage: test
   script:
-     - python -m unittest tests.test_ingest.TestRun.test_smartseq2_run
+     - python -m unittest tests.test_ingest.TestRun.test_ss2_ingest_to_dss
   only:
     - dev
     - integration

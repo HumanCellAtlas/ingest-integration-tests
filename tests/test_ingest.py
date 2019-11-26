@@ -36,10 +36,16 @@ class TestIngest(unittest.TestCase):
         self.ingest_broker = IngestUIAgent(self.deployment)
         self.ingest_api = IngestApiAgent(deployment=self.deployment)
 
+    def ingest_and_upload_only(self, dataset_name):
+        dataset_fixture = DatasetFixture(dataset_name, self.deployment)
+        runner = DatasetRunner(self.deployment, self.ingest_broker)
+        runner.valid_run(dataset_fixture)
+        return runner
+
     def ingest(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
         runner = DatasetRunner(self.deployment, self.ingest_broker)
-        runner.run(dataset_fixture)
+        runner.complete_run(dataset_fixture)
         return runner
 
     def _create_submission_envelope(self):
@@ -123,7 +129,10 @@ class TestIngest(unittest.TestCase):
 
 class TestRun(TestIngest):
 
-    def test_smartseq2_run(self):
+    def test_ss2_ingest_to_upload(self):
+        runner = self.ingest_and_upload_only('SS2')
+
+    def test_ss2_ingest_to_dss(self):
         runner = self.ingest('SS2')
 
     def test_10x_analysis_run(self):
