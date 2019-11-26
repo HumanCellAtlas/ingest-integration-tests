@@ -42,28 +42,6 @@ class TestIngest(unittest.TestCase):
         runner.run(dataset_fixture)
         return runner
 
-    def ingest_data_before_file_metadata(self):
-        submission_envelope = self._create_submission_envelope()
-
-        metadata_fixture = MetadataFixture()
-
-        # upload file first
-        filename = metadata_fixture.sequence_file['file_core']['file_name']
-        submission_manager = SubmissionManager(submission_envelope)
-        submission_manager.wait_for_envelope_to_be_in_draft()
-        submission_manager.get_upload_area_credentials()
-        submission_manager.select_upload_area()
-        submission_manager.upload_files(f'{metadata_fixture.data_files_location}{filename}')
-        submission_manager.forget_about_upload_area()
-
-        # create metadata
-
-        submission_manager.wait_for_envelope_to_be_validated()
-
-        # upload file
-        # wait submission to be valid
-        pass
-
     def _create_submission_envelope(self):
         token = self.token_manager.get_token()
         self.ingest_client_api.set_token(f'Bearer {token}')
@@ -156,9 +134,6 @@ class TestRun(TestIngest):
 
     def test_updates_run(self):
         runner = self.ingest_updates()
-
-    def test_data_before_file_metadata(self):
-        runner = self.ingest_data_before_file_metadata()
 
 
 if __name__ == '__main__':
