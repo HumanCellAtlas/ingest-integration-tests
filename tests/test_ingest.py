@@ -58,7 +58,6 @@ class TestIngest(unittest.TestCase):
 
         # create metadata
 
-
         submission_manager.wait_for_envelope_to_be_validated()
 
         # upload file
@@ -86,7 +85,8 @@ class TestIngest(unittest.TestCase):
 
     def ingest_analysis(self, dataset_name):
         analysis_fixture = AnalysisSubmissionFixture()
-        runner = AnalysisSubmissionRunner(deployment=self.deployment)
+        runner = AnalysisSubmissionRunner(self.deployment, self.ingest_broker, self.ingest_api, self.token_manager,
+                                          self.ingest_client_api)
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
         runner.run(dataset_fixture, analysis_fixture)
 

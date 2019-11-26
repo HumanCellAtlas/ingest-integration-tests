@@ -45,7 +45,7 @@ class UpdateSubmissionRunner:
         self.updated_bundle_fqids = None
 
     def run(self):
-        self.primary_submission = self.ingest_api.envelope(envelope_id='5dc4e8d7b26d240008a21c1c')
+        self.primary_submission = self.run_primary_submission('SS2')
         primary_bundle_manifests = self.primary_submission.get_bundle_manifests()
         self.primary_bundle_fqids = [BundleManifest(obj).fqid for obj in primary_bundle_manifests]
         projects = self.primary_submission.get_projects()
@@ -93,7 +93,7 @@ class UpdateSubmissionRunner:
         submission_id = self.ingest_broker.upload(dataset_fixture.metadata_spreadsheet_path)
         Progress.report(
             f"PRIMARY submission is in {self.ingest_api.ingest_api_url}/submissionEnvelopes/{submission_id}\n")
-        primary_submission = self.ingest_api.envelope('5dc4e8e8b26d240008a21dda')
+        primary_submission = self.ingest_api.envelope(submission_id)
 
         submission_manager = SubmissionManager(primary_submission)
         submission_manager.get_upload_area_credentials()
