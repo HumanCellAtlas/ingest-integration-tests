@@ -11,7 +11,6 @@ test_primary_submission:
     - dev
     - integration
     - staging
-    - task/refactor-di
 
 test_secondary_submission:
   stage: test
@@ -21,8 +20,6 @@ test_secondary_submission:
     - dev
     - integration
     - staging
-    - task/refactor-di
-
 
 test_big_submission:
   stage: test
@@ -32,7 +29,6 @@ test_big_submission:
     - dev
     - integration
     - staging
-    - task/refactor-di
 
 test_update_submission:
   stage: test
@@ -42,13 +38,11 @@ test_update_submission:
     - dev
     - integration
     - staging
-    - task/refactor-di
 
 before_script:
   - apt-get -y update
   - apt-get -y install jq
   - pip install -r requirements.txt
   - export DEPLOYMENT_ENV=$CI_COMMIT_REF_NAME
-  - export DEPLOYMENT_ENV=dev
   - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/${DEPLOYMENT_ENV}/gcp-credentials.json | jq -r .SecretString > gcp-credentials.json
   - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp-credentials.json
