@@ -3,10 +3,19 @@ image: python:3.6
 stages:
   - test
 
+test_ingest_to_upload:
+  stage: test
+  script:
+     - python -m unittest tests.test_ingest.TestRun.test_ss2_ingest_to_upload
+  only:
+    - dev
+    - integration
+    - staging
+
 test_primary_submission:
   stage: test
   script:
-     - python -m unittest tests.test_ingest.TestRun.test_smartseq2_run
+     - python -m unittest tests.test_ingest.TestRun.test_ss2_ingest_to_dss
   only:
     - dev
     - integration
@@ -20,7 +29,6 @@ test_secondary_submission:
     - dev
     - integration
     - staging
-
 
 test_big_submission:
   stage: test
@@ -44,5 +52,6 @@ before_script:
   - apt-get -y update
   - apt-get -y install jq
   - pip install -r requirements.txt
-  - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/${CI_COMMIT_REF_NAME}/gcp-credentials.json | jq -r .SecretString > gcp-credentials.json
+  - export DEPLOYMENT_ENV=$CI_COMMIT_REF_NAME
+  - aws secretsmanager get-secret-value --region us-east-1 --secret-id dcp/ingest/${DEPLOYMENT_ENV}/gcp-credentials.json | jq -r .SecretString > gcp-credentials.json
   - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd -P)/gcp-credentials.json

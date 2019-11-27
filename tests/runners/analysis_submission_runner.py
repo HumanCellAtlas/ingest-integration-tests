@@ -2,12 +2,10 @@ import json
 import os
 import time
 import uuid
-import requests
 
 from ingest.api.ingestapi import IngestApi
 from ingest.api.requests_utils import create_session_with_retry
 from ingest.exporter.bundle import BundleManifest
-from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
 
 from tests.fixtures.analysis_submission_fixture import \
@@ -18,15 +16,13 @@ from tests.utils import Progress
 
 
 class AnalysisSubmissionRunner:
-    def __init__(self, deployment):
+    def __init__(self, deployment, ingest_broker: IngestUIAgent, ingest_api: IngestApiAgent,
+                 token_manager: TokenManager, ingest_client_api: IngestApi):
         self.deployment = deployment
-        self.ingest_broker = IngestUIAgent(deployment=deployment)
-        self.ingest_api = IngestApiAgent(deployment=deployment)
-        self.s2s_token_client = S2STokenClient()
-        gcp_credentials_file = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-        self.s2s_token_client.setup_from_file(gcp_credentials_file)
-        self.token_manager = TokenManager(token_client=self.s2s_token_client)
-        self.ingest_client_api = IngestApi(url=f"https://api.ingest.{self.deployment}.data.humancellatlas.org")
+        self.ingest_broker = ingest_broker
+        self.ingest_api = ingest_api
+        self.token_manager = token_manager
+        self.ingest_client_api = ingest_client_api
         token = self.token_manager.get_token()
         self.ingest_client_api.set_token(f'Bearer {token}')
 
@@ -72,11 +68,16 @@ class AnalysisSubmissionRunner:
         bundle_manifest.bundleUuid = str(uuid.uuid4())
         bundle_manifest.envelopeUuid = submission_uuid
 
-        bundle_manifest.fileProjectMap = {project['uuid']['uuid']: [project['uuid']['uuid']] for project in self.primary_submission.get_projects()}
-        bundle_manifest.fileBiomaterialMap = {biomaterial['uuid']['uuid']: [biomaterial['uuid']['uuid']] for biomaterial in self.primary_submission.get_biomaterials()}
-        bundle_manifest.fileProcessMap = {process['uuid']['uuid']: [process['uuid']['uuid']] for process in self.primary_submission.get_processes()}
-        bundle_manifest.fileProtocolMap = {protocol['uuid']['uuid']: [protocol['uuid']['uuid']] for protocol in self.primary_submission.get_protocols()}
-        bundle_manifest.fileFilesMap = {file['uuid']['uuid']: [file['uuid']['uuid']] for file in self.primary_submission.get_files()}
+        bundle_manifest.fileProjectMap = {project['uuid']['uuid']: [project['uuid']['uuid']] for project in
+                                          self.primary_submission.get_projects()}
+        bundle_manifest.fileBiomaterialMap = {biomaterial['uuid']['uuid']: [biomaterial['uuid']['uuid']] for biomaterial
+                                              in self.primary_submission.get_biomaterials()}
+        bundle_manifest.fileProcessMap = {process['uuid']['uuid']: [process['uuid']['uuid']] for process in
+                                          self.primary_submission.get_processes()}
+        bundle_manifest.fileProtocolMap = {protocol['uuid']['uuid']: [protocol['uuid']['uuid']] for protocol in
+                                           self.primary_submission.get_protocols()}
+        bundle_manifest.fileFilesMap = {file['uuid']['uuid']: [file['uuid']['uuid']] for file in
+                                        self.primary_submission.get_files()}
         bundle_manifest.dataFiles = [file['dataFileUuid'] for file in self.primary_submission.get_files()]
 
         self.ingest_client_api.create_bundle_manifest(bundle_manifest)
@@ -87,8 +88,10 @@ class AnalysisSubmissionRunner:
         submission_url = submission["_links"]["self"]["href"].rsplit("{")[0]
         Progress.report(f"SECONDARY submission ID is {submission_url}\n")
         self.analysis_submission = self.ingest_api.envelope(envelope_id=None, url=submission_url)
-        process = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_process, 'processes')
-        protocol = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_protocol, 'protocols')
+        process = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_process,
+                                                       'processes')
+        protocol = self.ingest_client_api.create_entity(submission_url, self.analysis_fixture.analysis_protocol,
+                                                        'protocols')
         input_files = self.primary_submission.get_files()
         self.analysis_process = process
         self.analysis_protocol = protocol
@@ -104,7 +107,8 @@ class AnalysisSubmissionRunner:
         add_input_file_url = process['_links']['inputFiles']['href']
         input_file_uuids = [file['uuid']['uuid'] for file in input_files]
         for file_uuid in input_file_uuids:
-            r = self.session.post(add_input_file_url, json.dumps({"inputFileUuid": file_uuid}), headers=self._get_headers())
+            r = self.session.post(add_input_file_url, json.dumps({"inputFileUuid": file_uuid}),
+                                  headers=self._get_headers())
             r.raise_for_status()
 
         add_reference_files_url = process['_links']['add-file-reference']['href']
@@ -117,22 +121,35 @@ class AnalysisSubmissionRunner:
         self.submission_manager = SubmissionManager(self.analysis_submission)
         self.submission_manager.get_upload_area_credentials()
         # TODO restrict permission in the s3 bucket
-        # FIXME The following is a workaround because of the issue when uploading files from an s3 bucket. This is very slow as it's uploading files one at a time, fix this
+        # FIXME The following is a workaround because of the issue when uploading files from an s3 bucket. This is
+        #  very slow as it's uploading files one at a time, fix this
         # self.submission_manager.stage_data_files('s3://org-humancellatlas-ingest-integration-test/analyses-data')
 
         self.submission_manager.select_upload_area()
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/metrics_summary.csv')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/filtered_gene_bc_matrices_h5.h5')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/molecule_info.h5')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/metrics_summary.csv')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/filtered_gene_bc_matrices_h5.h5')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/molecule_info.h5')
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/genes.tsv')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/barcodes.tsv')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/barcodes.tsv')
         self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/matrix.mtx')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/barcodes.tsv')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/possorted_genome_bam.bam.bai')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/raw_genes.tsv')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/raw_gene_bc_matrices_h5.h5')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/web_summary.html')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/raw_matrix.mtx')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/possorted_genome_bam.bam')
-        self.submission_manager.upload_files('s3://org-humancellatlas-ingest-integration-test/analysis-data/raw_barcodes.tsv')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/barcodes.tsv')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/possorted_genome_bam.bam.bai')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/raw_genes.tsv')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/raw_gene_bc_matrices_h5.h5')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/web_summary.html')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/raw_matrix.mtx')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/possorted_genome_bam.bam')
+        self.submission_manager.upload_files(
+            's3://org-humancellatlas-ingest-integration-test/analysis-data/raw_barcodes.tsv')
         self.submission_manager.forget_about_upload_area()
