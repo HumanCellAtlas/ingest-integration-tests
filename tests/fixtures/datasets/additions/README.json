@@ -1,0 +1,4 @@
+{
+  "data_files_location": "s3://org-humancellatlas-dcp-test-data/additions/smart-seq2-one-bundle/",
+  "spreadsheet_location": "https://raw.github.com/HumanCellAtlas/ingest-integration-tests/tests/fixtures/datasets/additions/dcp_integration_test_metadata_1_SS2_bundle_addition.xlsx"
+}
