@@ -48,6 +48,15 @@ test_update_submission:
     - integration
     - staging
 
+test_add_new_bundle:
+  stage: test
+  script:
+    - python -m unittest tests.test_add_bundle.run
+  only:
+    - dev
+    - integration
+    - staging
+
 before_script:
   - apt-get -y update
   - apt-get -y install jq
