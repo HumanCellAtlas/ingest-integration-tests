@@ -7,10 +7,10 @@ from tests.utils import Progress
 
 class DatasetRunner:
 
-    def __init__(self, deployment, ingest_broker):
+    def __init__(self, deployment):
         self.deployment = deployment
 
-        self.ingest_broker = ingest_broker
+        self.ingest_broker = IngestUIAgent(deployment)
         self.ingest_api = IngestApiAgent(deployment=deployment)
         self.submission_id = None
         self.submission_envelope = None
