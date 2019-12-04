@@ -110,3 +110,4 @@ tests/fixtures/analyses/10x/data
 _local/
 
 .DS_Store
+*.xlsx
