@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 
 import requests
 from ingest.utils.s2s_token_client import S2STokenClient
@@ -16,12 +17,14 @@ class IngestUIAgent:
         self.ingest_auth_agent = IngestAuthAgent()
         self.auth_headers = self.ingest_auth_agent.make_auth_header()
 
-    def upload(self, metadata_spreadsheet_path, is_update=False):
+    def upload(self, metadata_spreadsheet_path, is_update=False, project_uuid=None):
         url = self.ingest_broker_url + '/api_upload'
         if is_update:
             url = self.ingest_broker_url + '/api_upload_update'
 
         files = {'file': open(metadata_spreadsheet_path, 'rb')}
+        if project_uuid:
+            files['projectUuid'] = project_uuid
         response = requests.post(url, files=files, allow_redirects=False, headers=self.auth_headers)
         if response.status_code != requests.codes.found and response.status_code != requests.codes.created:
             raise RuntimeError(f"POST {url} response was {response.status_code}: {response.content}")
@@ -50,6 +53,15 @@ class IngestApiAgent:
     def envelope(self, envelope_id=None, url=None):
         return IngestApiAgent.SubmissionEnvelope(envelope_id=envelope_id, ingest_api_url=self.ingest_api_url,
                                                  auth_headers=self.auth_headers, url=url)
+
+    class Project:
+
+        def __init__(self, source: dict = {}):
+            self._source = deepcopy(source)
+
+        def get_uuid(self):
+            uuid = self._source.get('uuid')
+            return uuid.get('uuid') # because uuid's are structured as uuid.uuid in the source JSON
 
     class SubmissionEnvelope:
 
@@ -95,8 +107,15 @@ class IngestApiAgent:
         def get_files(self):
             return self._get_entity_list('files')
 
+        # TODO deprecate this for retrieve_projects; retain get_projects name but use retrieve_projects logic
         def get_projects(self):
             return self._get_entity_list('projects')
+
+        def retrieve_projects(self):
+            """
+            Similar to get_projects but returns a list of Project objects instead of raw JSON.
+            """
+            return [IngestApiAgent.Project(source=source) for source in self.get_projects()]
 
         def get_protocols(self):
             return self._get_entity_list('protocols')
