@@ -35,14 +35,21 @@ test_big_submission:
   script:
      - python -m unittest tests.test_ingest.TestRun.test_big_submission_run
   only:
-    - dev
-    - integration
-    - staging
+    - task/bun
 
 test_update_submission:
   stage: test
   script:
      - python -m unittest tests.test_ingest.TestRun.test_updates_run
+  only:
+    - dev
+    - integration
+    - staging
+
+test_add_new_bundle:
+  stage: test
+  script:
+    - python -m unittest tests.test_add_bundle.AddBundleTest.test_run
   only:
     - dev
     - integration

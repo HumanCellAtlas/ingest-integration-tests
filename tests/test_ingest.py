@@ -38,13 +38,13 @@ class TestIngest(unittest.TestCase):
 
     def ingest_and_upload_only(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
-        runner = DatasetRunner(self.deployment, self.ingest_broker)
+        runner = DatasetRunner(self.deployment)
         runner.valid_run(dataset_fixture)
         return runner
 
     def ingest(self, dataset_name):
         dataset_fixture = DatasetFixture(dataset_name, self.deployment)
-        runner = DatasetRunner(self.deployment, self.ingest_broker)
+        runner = DatasetRunner(self.deployment)
         runner.complete_run(dataset_fixture)
         return runner
 

@@ -1,0 +1,4 @@
+{
+  "data_files_location": "s3://org-humancellatlas-dcp-test-data/additions/",
+  "spreadsheet_location": "https://github.com/HumanCellAtlas/ingest-integration-tests/blob/task/bundle-additions-flow/tests/fixtures/datasets/additions/dcp_integration_test_metadata_1_SS2_bundle_addition.xlsx?raw=true"
+}
