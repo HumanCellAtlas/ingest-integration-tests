@@ -4,6 +4,7 @@ from tests import config
 from tests.fixtures.dataset_fixture import DatasetFixture
 from tests.ingest_agents import IngestApiAgent
 from tests.runners.dataset_runner import DatasetRunner
+from tests.utils import Progress
 
 
 class AddBundleTest(TestCase):
@@ -18,6 +19,8 @@ class AddBundleTest(TestCase):
 
         project_uuid = projects[0].get_uuid()
         self.assertIsNotNone(project_uuid)
+
+        Progress.report('Uploading addition spreadsheet...')
         self._submit_dataset('additions', project_uuid=project_uuid)
 
     def _submit_dataset(self, dataset_name, project_uuid=None) -> IngestApiAgent.SubmissionEnvelope:
