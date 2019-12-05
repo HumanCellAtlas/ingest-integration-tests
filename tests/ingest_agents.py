@@ -22,10 +22,12 @@ class IngestUIAgent:
         if is_update:
             url = self.ingest_broker_url + '/api_upload_update'
 
-        files = {'file': open(metadata_spreadsheet_path, 'rb')}
+        data = {}
         if project_uuid:
-            files['projectUuid'] = project_uuid
-        response = requests.post(url, files=files, allow_redirects=False, headers=self.auth_headers)
+            data['projectUuid'] = project_uuid
+        files = {'file': open(metadata_spreadsheet_path, 'rb')}
+
+        response = requests.post(url, data=data, files=files, allow_redirects=False, headers=self.auth_headers)
         if response.status_code != requests.codes.found and response.status_code != requests.codes.created:
             raise RuntimeError(f"POST {url} response was {response.status_code}: {response.content}")
         return json.loads(response.content)['details']['submission_id']
