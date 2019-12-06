@@ -1,11 +1,13 @@
 import json
 import os
+import re
 from copy import deepcopy
 
 import requests
 from ingest.utils.s2s_token_client import S2STokenClient
 from ingest.utils.token_manager import TokenManager
 
+SCHEMA_URL_PATTERN = re.compile('https?://.*/(?P<concrete_type>\\w*)')
 
 class IngestUIAgent:
 
@@ -37,6 +39,7 @@ class IngestUIAgent:
         response = requests.get(url)
         return response.content
 
+
 class IngestApiAgent:
 
     INGEST_API_URL_TEMPLATE = "https://api.ingest.{}.data.humancellatlas.org"
@@ -56,7 +59,7 @@ class IngestApiAgent:
         return IngestApiAgent.SubmissionEnvelope(envelope_id=envelope_id, ingest_api_url=self.ingest_api_url,
                                                  auth_headers=self.auth_headers, url=url)
 
-    class Project:
+    class Entity:
 
         def __init__(self, source: dict = {}):
             self._source = deepcopy(source)
@@ -117,7 +120,7 @@ class IngestApiAgent:
             """
             Similar to get_projects but returns a list of Project objects instead of raw JSON.
             """
-            return [IngestApiAgent.Project(source=source) for source in self.get_projects()]
+            return [IngestApiAgent.Entity(source=source) for source in self.get_projects()]
 
         def get_protocols(self):
             return self._get_entity_list('protocols')
@@ -125,8 +128,12 @@ class IngestApiAgent:
         def get_processes(self):
             return self._get_entity_list('processes')
 
+        # TODO deprecate for retrieve_biomaterials
         def get_biomaterials(self):
             return self._get_entity_list('biomaterials')
+
+        def retrieve_biomaterials(self):
+            return [IngestApiAgent.Entity(source) for source in self.get_biomaterials()]
 
         def get_bundle_manifests(self):
             return self._get_entity_list('bundleManifests')

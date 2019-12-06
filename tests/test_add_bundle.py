@@ -17,6 +17,9 @@ class AddBundleTest(TestCase):
         projects = primary_submission.retrieve_projects()
         self.assertEqual(1, len(projects))
 
+        biomaterials = primary_submission.retrieve_biomaterials()
+        self.assertEqual(3, len(biomaterials))
+
         project_uuid = projects[0].get_uuid()
         self.assertIsNotNone(project_uuid)
 
