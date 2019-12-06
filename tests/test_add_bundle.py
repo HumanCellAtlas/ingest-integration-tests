@@ -18,7 +18,8 @@ class AddBundleTest(TestCase):
         self.assertEqual(1, len(projects))
 
         biomaterials = primary_submission.retrieve_biomaterials()
-        self.assertEqual(3, len(biomaterials))
+        donors = [entity for entity in biomaterials if entity.get_concrete_type().lower() == 'donor_organism']
+        self.assertEqual(1, len(donors), msg='Expected exactly 1 Donor from primary submission.')
 
         project_uuid = projects[0].get_uuid()
         self.assertIsNotNone(project_uuid)

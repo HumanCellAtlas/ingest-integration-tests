@@ -68,6 +68,17 @@ class IngestApiAgent:
             uuid = self._source.get('uuid')
             return uuid.get('uuid') # because uuid's are structured as uuid.uuid in the source JSON
 
+        def get_concrete_type(self):
+            concrete_type = ''
+            content = self._source.get('content')
+            if content:
+                described_by = content.get('describedBy')
+                if described_by:
+                    match = SCHEMA_URL_PATTERN.match(described_by)
+                    if match:
+                        concrete_type = match.group('concrete_type')
+            return concrete_type
+
     class SubmissionEnvelope:
 
         def __init__(self, envelope_id=None, ingest_api_url=None, auth_headers=None, url=None):
