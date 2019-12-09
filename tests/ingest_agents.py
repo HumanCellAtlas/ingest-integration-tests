@@ -146,6 +146,9 @@ class IngestApiAgent:
         def retrieve_biomaterials(self):
             return [IngestApiAgent.Entity(source) for source in self.get_biomaterials()]
 
+        def retrieve_biomaterials_by_type(self, concrete_type):
+            return [entity for entity in self.retrieve_biomaterials() if entity.get_concrete_type() == concrete_type]
+
         def get_bundle_manifests(self):
             return self._get_entity_list('bundleManifests')
 
